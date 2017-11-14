@@ -513,218 +513,150 @@ namespace SHGuestsEFCore
 
         private void monthlyAdmissionsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "admits_by_month.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt);
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Monthly Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.MonthlyReport;
                 sptf.Text = query_title;
                 sptf.referring_switch = true;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
-                en_conn.Close ( );
+                //en_conn.Close ( );
             }
             return;
         }
 
         private void annualAdmissionsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "admit_by_months.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
             SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Annual Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.Normal;
                 sptf.Text = query_title;
                 sptf.referring_switch = true;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
-                en_conn.Close ( );
             }
             return;
         }
 
         private void monthlyDischargesToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "discharges_by_month.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Monthly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.MonthlyReport;
                 sptf.Text = query_title;
                 sptf.referring_switch = true;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
-                en_conn.Close ( );
             }
             return;
         }
 
         private void annualDischargesToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "discharges_by_months.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Yearly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.Normal;
                 sptf.Text = query_title;
                 sptf.referring_switch = true;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
-                en_conn.Close ( );
             }
             return;
         }
 
         private void agencyAnnualAdmissionsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "agency_admissions_by_year.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Admissions by Hospital Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.Normal;
                 sptf.Text = query_title;
                 sptf.referring_switch = true;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
             }
-            en_conn.Close ( );
             return;
         }
 
         private void agencySocialWorkerAnnualAdmissionsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "annual_worker_admissions.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Yearly Admissions by Agency and Social Worker Since 06-05-2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.Worker;
                 sptf.Text = query_title;
                 sptf.referring_switch = false;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
             }
-            en_conn.Close ( );
             return;
         }
 
         private void socialWorkerCanReturnReportToolStripMenuItem_Click ( object sender, EventArgs e )
         {
+            PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "sw_returns_report.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            if (en_conn.State != ConnectionState.Open)
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
+            if (dtr.HasRows)
             {
-                en_conn.Open ( );
-            }
-            SqlCommand sql_cmnd = new SqlCommand ( str_sql, en_conn );
-            SqlDataAdapter sql_da = new SqlDataAdapter ( str_sql, en_conn );
-            DataTable sql_dt = new DataTable ( );
-            sql_da.SelectCommand = sql_cmnd;
-            sql_da.Fill ( sql_dt );
-            DataTableReader sql_dtr = sql_dt.CreateDataReader ( );
-            if (sql_dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( sql_dt, sql_dtr );
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
                 string query_title = $"Samaritan House Social Worker Return Report Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
                 sptf.report_type = pivot_rpt_type.Worker;
                 sptf.Text = query_title;
                 sptf.referring_switch = false;
                 Hide ( );
                 sptf.ShowDialog ( );
+                dtr.Close ( );
                 Show ( );
-                sql_dtr.Close ( );
             }
-            en_conn.Close ( );
             return;
         }
 

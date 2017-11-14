@@ -68,18 +68,18 @@ namespace SHGuestsEFCore.Reporting_Modules
                 var roster = ( from jd in db.Guests
                                join vd in db.Visits
                                on jd.GuestId equals vd.GuestId
+                               let bdays = myMethod(to_Date, vd.AdmitDate)
                                orderby vd.AdmitDate, jd.LastName, jd.FirstName
-                               where vd.Roster == "C"
+                               where vd.Roster == "C" && bdays > 44
                                select new
                                {
                                    Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
                                    Gender = ( jd.Gender == "M" ) ? "Male" : "Female",
                                    InDate = vd.AdmitDate,
-                                   Days = myMethod ( DateTime.Today, vd.AdmitDate ),
+                                   Days = bdays,
                                    Reason = vd.AdmitReason,
                                    Agency = vd.Agency
                                } ).ToList ( );
-                var new_list = new List<dynamic> ( roster.Where ( x => x.Days > 44 ) );
                 dataTable.Columns.Add ( "Name", typeof ( string ) );
                 dataTable.Columns.Add ( "Gender", typeof ( string ) );
                 dataTable.Columns.Add ( "Admitted", typeof ( DateTime ) );
@@ -87,7 +87,7 @@ namespace SHGuestsEFCore.Reporting_Modules
                 dataTable.Columns.Add ( "Admit Reason", typeof ( string ) );
                 dataTable.Columns.Add ( "Hospital", typeof ( string ) );
 
-                foreach( var i in new_list)
+                foreach( var i in roster)
                 {
                     dataTable.Rows.Add ( i.Name, i.Gender, i.InDate, i.Days, i.Reason, i.Agency );
                 }
