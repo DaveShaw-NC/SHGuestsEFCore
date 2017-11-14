@@ -353,227 +353,87 @@ namespace SHGuestsEFCore
 
         private void rosterToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
-            string [ ] colHeadings = new string [ ]
-            {
-                "Admitted", "Name", "Gender", "Reason", "Agency (Worker)", "Bed Days", "Visit"
-            };
-            Type [ ] colTypes = new Type [ ]
-            {
-                typeof(DateTime), typeof(string), typeof(string), typeof(string), typeof(string), typeof(int), typeof(int)
-            };
-            DataTable dt = new DataTable ( "roster" );
-            for (int i = 0; i < colHeadings.Count ( ); i++)
-            {
-                dt.Columns.Add ( colHeadings [i], colTypes [i] );
-            }
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                var roster = ( from jd in db.Guests
-                               join vd in db.Visits
-                               on jd.GuestId equals vd.GuestId
-                               orderby vd.AdmitDate, jd.LastName, jd.FirstName
-                               where vd.Roster == "C"
-                               select new
-                               {
-                                   Admitted = vd.AdmitDate,
-                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                   Gender = ( jd.Gender == "M" ) ? "Male" : "Female",
-                                   Reason = vd.AdmitReason.TrimEnd ( _defaulttrim ),
-                                   AgencyWorker = string.Concat ( vd.Agency, " (", vd.Worker, ")" ),
-                                   Days = myMethod ( DateTime.Today, vd.AdmitDate ),
-                                   Visit = vd.VisitNumber
-                               } ).ToList ( );
-
-                foreach (var rr in roster)
-                {
-                    dt.Rows.Add ( rr.Admitted, rr.Name, rr.Gender, rr.Reason, rr.AgencyWorker, rr.Days, rr.Visit );
-                }
-                string query_title = $"Samaritan House Current Guest List: {roster.Count:N0} records as of: {DateTime.Today:D}";
-                statistical_report = false;
-                ViewReport ( dt, query_title, statistical_report );
-            }
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+            dt = lr.Roster_Report ( );
+            string query_title = $"Samaritan House Current Guest List: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void guestsHere45DaysToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
 
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                var roster = ( from jd in db.Guests
-                               join vd in db.Visits
-                               on jd.GuestId equals vd.GuestId
-                               orderby vd.AdmitDate, jd.LastName, jd.FirstName
-                               where vd.Roster == "C"
-                               select new
-                               {
-                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                   Gender = ( jd.Gender == "M" ) ? "Male" : "Female",
-                                   InDate = vd.AdmitDate,
-                                   Days = myMethod ( DateTime.Today, vd.AdmitDate ),
-                                   Reason = vd.AdmitReason,
-                                   Agency = vd.Agency
-                               } ).ToList ( );
-                var new_list = new List<dynamic> ( roster.Where ( x => x.Days > 44 ) );
-                string query_title = $"Samaritan House Guest with > 45 Days: {new_list.Count:N0} records as of: {DateTime.Today:D}";
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            dt = lr.LongCurrentsReport ( );
+            string query_title = $"Samaritan House Guest with > 45 Days: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void guestWithQuestionableInformationToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = new DateTime ( 1980, 01, 01 );
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                var roster = ( from jd in db.Guests
-                               join vd in db.Visits
-                               on jd.GuestId equals vd.GuestId
-                               where ( ( vd.Worker.Contains ( "No file" ) || vd.Worker.Contains ( "Signature Ill" ) ) ||
-                                      ( jd.Ssn == 999999999 || jd.BirthDate == to_Date )
-                                      && vd.Roster == "D" )
-                               orderby jd.LastName, jd.FirstName, vd.VisitNumber
-                               select new
-                               {
-                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                   BirthDate = jd.BirthDate,
-                                   SSNorW7 = jd.Ssn,
-                                   InDate = vd.AdmitDate,
-                                   OutDate = vd.Discharged,
-                                   Days = vd.VisitDays,
-                                   Agency_Worker = string.Concat ( vd.Agency, " (", vd.Worker, ")" )
-                               } ).ToList ( );
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
 
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House Guests with Questionable Information: {new_list.Count:N0} records as of: {DateTime.Today:D}";
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            dt = lr.QuestionableData ( );
+            string query_title = $"Samaritan House Guests with Questionable Information: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void inelegibleForReturnToSamaritanHouseToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                var roster = ( from jd in db.Guests
-                               join vd in db.Visits
-                               on jd.GuestId equals vd.GuestId
-                               where ( !vd.CanReturn ) && ( !vd.Deceased && !vd.DischargeReason.Contains ( "No Show" ) )
-                               //&& vd.Discharged >= ParkRoadCutOffDate
-                               orderby jd.LastName, jd.FirstName, vd.Discharged
-                               select new
-                               {
-                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                   InDate = vd.AdmitDate,
-                                   OutDate = vd.Discharged,
-                                   Days = vd.VisitDays,
-                                   OutReason = vd.DischargeReason,
-                                   Agency_Worker = string.Concat ( vd.Agency, " (", vd.Worker, ")" )
-                               } ).ToList ( );
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
 
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House Guests Ineligible for Return: {new_list.Count:N0} records as of: {DateTime.Today:D}";
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            dt = lr.Ineligibles ( );
+            string query_title = $"Samaritan House Guests Ineligible for Return: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void completeGuestListToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var curr_roster = ( from nc in db.Guests.AsEnumerable ( )
-                                    join vd in db.Visits.AsEnumerable ( )
-                                    on nc.GuestId equals vd.GuestId
-                                    orderby nc.LastName, nc.FirstName
-                                    where ( nc.Roster == "D" ) && vd.Discharged >= ParkRoadCutOffDate
-                                    select new
-                                    {
-                                        Name = string.Concat ( nc.LastName, ", ", nc.FirstName ),
-                                        Visit = vd.VisitNumber,
-                                        Admitted = vd.AdmitDate,
-                                        Discharged = vd.Discharged,
-                                        Days = vd.VisitDays,
-                                        DischargeReason = vd.DischargeReason,
-                                        Return = ( vd.CanReturn ) ? "Yes" : "No"
-                                    }
-                                   ).ToList ( );
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+            var db = new DataModel.SHGuests ( );
 
-                var new_list = new List<dynamic> ( curr_roster );
-                int guest_count = new_list.Count ( nl => nl.Visit == 1 );
-                string query_title = $"Fortune Street Discharged Guest Listing of {guest_count:N0} Guests As of: {DateTime.Today:D}"; ;
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            dt = lr.CompleteGuestList ( );
+            int guest_count = db.Visits.Count ( nl => nl.VisitNumber == 1 );
+            string query_title = $"Fortune Street Discharged Guest Listing of {guest_count:N0} Guests As of: {DateTime.Today:D}"; ;
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void roomAssignmentsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var roster = ( from jd in db.Guests.AsEnumerable ( )
-                               join vd in db.Visits.AsEnumerable ( )
-                               on jd.GuestId equals vd.GuestId
-                               orderby vd.Room, vd.Bed
-                               where vd.Roster == "C"
-                               select new
-                               {
-                                   Room = ( int )vd.Room,
-                                   Bed = ( int )vd.Bed,
-                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                   Gender = ( jd.Gender == "M" ) ? "Male" : "Female",
-                                   InDate = vd.AdmitDate,
-                                   Days = myMethod ( DateTime.Today, vd.AdmitDate ),
-                                   Reason = vd.AdmitReason,
-                                   Agency = vd.Agency
-                               } ).ToList ( );
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+            var db = new DataModel.SHGuests ( );
 
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House Current Guest Room Assignments As of: {DateTime.Today:D}"; ;
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            dt = lr.RoomAssignments ( );
+            string query_title = $"Samaritan House Current Guest Room Assignments As of: {DateTime.Today:D}"; ;
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void deceasedGuestsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var roster = from jd in db.Guests
-                             join vd in db.Visits
-                             on jd.GuestId equals vd.GuestId
-                             orderby jd.LastName, jd.FirstName
-                             where vd.Roster == "D" && vd.Deceased
-                             select new
-                             {
-                                 Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                 Visit = vd.VisitNumber,
-                                 InDate = vd.AdmitDate,
-                                 OutDate = vd.Discharged,
-                                 AdmitReason = vd.AdmitReason,
-                                 DischargeReason = vd.DischargeReason
-                             };
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House  - {new_list.Count:N0} Former Guests Listed as Deceased As of: {DateTime.Today:D}"; ;
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+
+            dt = lr.DeceasedGuests ( );
+            string query_title = $"Samaritan House  - {dt.Rows.Count:N0} Former Guests Listed as Deceased As of: {DateTime.Today:D}"; ;
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
@@ -603,115 +463,47 @@ namespace SHGuestsEFCore
 
         private void Social_Worker_Guest_List_Click ( object sender, EventArgs e )
         {
-            string [ ] colHeadings = new string [ ]
-            {
-                "Worker", "Agency", "Admit", "Discharge", "Name", "Admit Reason", "Days", "Ret"
-            };
-            Type [ ] colTypes = new Type [ ]
-            {
-                typeof(string), typeof(string), typeof(DateTime), typeof(DateTime), typeof(string), typeof(string), typeof(int), typeof(string)
-            };
-            DataTable dt = new DataTable ( "WorkerList" );
-            for (int i = 0; i < colHeadings.Count ( ); i++)
-            {
-                dt.Columns.Add ( colHeadings [i], colTypes [i] );
-            }
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var roster = ( from g in db.Guests.AsEnumerable ( )
-                               join v in db.Visits.AsEnumerable ( )
-                               on g.GuestId equals v.GuestId
-                               where v.AdmitDate >= ParkRoadCutOffDate
-                               orderby v.Worker, v.Agency, v.AdmitDate, g.LastName, g.FirstName
-                               select new
-                               {
-                                   Worker = v.Worker.TrimEnd ( _defaulttrim ),
-                                   Agency = v.Agency.TrimEnd ( _defaulttrim ),
-                                   Name = string.Concat ( g.LastName, ", ", g.FirstName ),
-                                   InDate = v.AdmitDate,
-                                   OutDate = v.Discharged,
-                                   AdmitReason = v.AdmitReason.TrimEnd ( _defaulttrim ),
-                                   Days = ( v.Roster.Equals ( "D" ) ) ? v.VisitDays : ( to_Date.AddDays ( 1 ) - v.AdmitDate ).Days,
-                                   Return = ( v.CanReturn ) ? "Yes " : "No  "
-                               } ).ToList ( );
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
 
-                foreach (var item in roster)
-                {
-                    dt.Rows.Add ( item.Worker, item.Agency, item.InDate, item.OutDate, item.Name, item.AdmitReason, item.Days, item.Return );
-                }
-                DataTableReader dtr = dt.CreateDataReader ( );
-                if (dtr.HasRows)
-                {
-                    PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                    string query_title = $"Samaritan House SW Guest(s) List  Since {ParkRoadCutOffDate.ToShortDateString ( )} ({roster.Count:N0} Records) As of: {DateTime.Today:D}"; ;
-                    sptf.report_type = pivot_rpt_type.WorkerDetail;
-                    sptf.Text = query_title;
-                    sptf.referring_switch = false;
-                    Hide ( );
-                    sptf.ShowDialog ( );
-                    Show ( );
-                    dtr.Close ( );
-                }
+            dt = lr.SocialWorkerGuestList ( );
+            DataTableReader dtr = dt.CreateDataReader ( );
+            if (dtr.HasRows)
+            {
+                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
+                string query_title = $"Samaritan House SW Guest(s) List  Since {ParkRoadCutOffDate.ToShortDateString ( )} ({dt.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; ;
+                sptf.report_type = pivot_rpt_type.WorkerDetail;
+                sptf.Text = query_title;
+                sptf.referring_switch = false;
+                Hide ( );
+                sptf.ShowDialog ( );
+                Show ( );
+                dtr.Close ( );
             }
             return;
         }
 
         private void hospitalNoShowsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var roster = from jd in db.Guests
-                             join vd in db.Visits
-                             on jd.GuestId equals vd.GuestId
-                             orderby jd.LastName, jd.FirstName
-                             where vd.Roster == "D" && vd.DischargeReason.Contains ( "No Show" ) && vd.Discharged >= ParkRoadCutOffDate
-                             select new
-                             {
-                                 Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                 InDate = vd.AdmitDate,
-                                 OutDate = vd.Discharged,
-                                 Days = vd.VisitDays,
-                                 AdmitReason = vd.AdmitReason,
-                                 DischargeReason = vd.DischargeReason
-                             };
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House Hospital No Show List ({new_list.Count:N0} Records) As of: {DateTime.Today:D}"; ;
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+
+            dt = lr.NoShowsReport ( );
+            string query_title = $"Samaritan House Hospital No Show List ({dt.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; ;
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 
         private void guestWalkOffsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
-            using (var db = new DataModel.SHGuests ( ))
-            {
-                Func<DateTime, DateTime, int> myMethod = CalcDays;
-                DateTime to_Date = DateTime.Today;
-                var roster = from jd in db.Guests
-                             join vd in db.Visits
-                             on jd.GuestId equals vd.GuestId
-                             orderby jd.LastName, jd.FirstName
-                             where vd.Roster == "D" && ( vd.DischargeReason.Contains ( "Walk off" ) || vd.DischargeReason.Contains ( "Walked off" ) )
-                                   && vd.Discharged >= ParkRoadCutOffDate
-                             select new
-                             {
-                                 Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
-                                 InDate = vd.AdmitDate,
-                                 OutDate = vd.Discharged,
-                                 Days = vd.VisitDays,
-                                 AdmitReason = vd.AdmitReason,
-                                 DischargeReason = vd.DischargeReason
-                             };
-                var new_list = new List<dynamic> ( roster );
-                string query_title = $"Samaritan House Walk-Offs List ({new_list.Count:N0} Records) As of: {DateTime.Today:D}"; ;
-                statistical_report = false;
-                ViewReport ( new_list, query_title, statistical_report );
-            }
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+
+            dt = lr.WalkOffsReport ( );
+            string query_title = $"Samaritan House Walk-Offs List ({dt.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; ;
+            statistical_report = false;
+            ViewReport ( dt, query_title, statistical_report );
             return;
         }
 

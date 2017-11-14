@@ -182,6 +182,7 @@
     <Compile Include="DataModel\SHGuests.cs" />
     <Compile Include="DataModel\Visits.cs" />
     <Compile Include="Reporting_Modules\Grouped_Reports.cs" />
+    <Compile Include="Reporting_Modules\LINQ_Reports.cs" />
     <Compile Include="Reporting_Modules\Things.cs" />
     <Compile Include="SHGuests.cs">
       <SubType>Form</SubType>
