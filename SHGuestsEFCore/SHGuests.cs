@@ -48,7 +48,8 @@ namespace SHGuestsEFCore
             int ndx = filePath.LastIndexOf ( @"\bin" );
             string tmp_Path = filePath.Substring ( 0, ndx );
             filePath = tmp_Path + @"\T-SQL_Queries\";
-            this.BackColor = ColorTranslator.FromHtml ( "#003B6F" );
+            this.BackColor = ColorTranslator.FromHtml ( "#5F9EA0" );
+            //this.BackColor = ColorTranslator.FromHtml ( "#003B6F" );                          Tardis Blue;May be a little too dark
             InitializeComponent ( );
         }
 
@@ -147,7 +148,7 @@ namespace SHGuestsEFCore
             label_ParkRoadVisits.Font = lbl_Font;
             label_NoReturnCount.Font = lbl_Font;
             label_FortuneStreetGuests.Font = lbl_Font;
-            label_FortuneStreetGuests.ForeColor = Color.RoyalBlue;
+            label_FortuneStreetGuests.ForeColor = Color.Blue;
             label_ParkRoadGuests.Font = lbl_Font;
             label_ParkRoadGuests.ForeColor = Color.Red;
             label_cboxtot_discharged.Font = lbl_Font;
@@ -156,15 +157,16 @@ namespace SHGuestsEFCore
             toolStripStatusLabel_statusLabel.ForeColor = Color.DarkBlue;
             int currentcount = db.Visits.Where ( v => v.Roster.Equals ( "C" ) ).Count ( );
             int dischcount = db.Visits.Where ( v => v.Roster.Equals ( "D" ) ).Where ( v => v.VisitNumber == 1 ).Count ( );
-            int totalguests = db.Guests.Count ( );
+            int totalguests = currentcount + dischcount;
+            //int totalguests = db.Guests.Count ( );
             int singlevisits = 0;
             int multivisits = 0;
-            int totalvisits = 0;
+            int totalvisits = db.Visits.Count ( );
             foreach (Guests it in main_List)
             {
                 foreach (Visits vv in it.VisitsNavigation)
                 {
-                    totalvisits++;
+                    //totalvisits++;
                     if (vv.VisitNumber == 1)
                     {
                         singlevisits++;
@@ -528,7 +530,6 @@ namespace SHGuestsEFCore
                 sptf.ShowDialog ( );
                 dtr.Close ( );
                 Show ( );
-                //en_conn.Close ( );
             }
             return;
         }
@@ -663,28 +664,6 @@ namespace SHGuestsEFCore
         #endregion SQL Pivot Reporting (Native SQL Queries)
 
         #region Results Reporting
-
-        private void ViewReport ( List<dynamic> theList, string title, bool rpt_type )
-        {
-            rpt_dlg = new Report_Results ( theList, rpt_type );
-            try
-            {
-                Hide ( );
-                num_rows = rpt_dlg.NumberofRows;
-                if (num_rows > 0)
-                {
-                    rpt_dlg.Text = title;
-                    rpt_dlg.ShowDialog ( );
-                    rpt_dlg.ResetFont ( );
-                }
-                Show ( );
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show ( "Error " + exc.Message );
-            }
-            return;
-        }
 
         private void ViewReport ( DataTable theList, string title, bool rpt_type )
         {
