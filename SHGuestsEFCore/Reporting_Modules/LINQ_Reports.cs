@@ -106,7 +106,7 @@ namespace SHGuestsEFCore.Reporting_Modules
                                join vd in db.Visits
                                on jd.GuestId equals vd.GuestId
                                where ( ( vd.Worker.Contains ( "No file" ) || vd.Worker.Contains ( "Signature Ill" ) ) ||
-                                      ( jd.Ssn == 999999999 || jd.BirthDate == to_Date )
+                                      ( jd.Ssn == 999999999 || jd.BirthDate == new DateTime(1980, 01, 01) )
                                       && vd.Roster == "D" )
                                orderby jd.LastName, jd.FirstName, vd.VisitNumber
                                select new
@@ -175,7 +175,7 @@ namespace SHGuestsEFCore.Reporting_Modules
 
         public DataTable DeceasedGuests()
         {
-            dataTable = new DataTable ( "Ineligibles" );
+            dataTable = new DataTable ( "Deceased" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
             DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))

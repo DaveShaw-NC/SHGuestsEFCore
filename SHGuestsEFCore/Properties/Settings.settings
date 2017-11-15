@@ -5,5 +5,8 @@
     <Setting Name="ConnectionString" Type="System.String" Scope="User">
       <Value Profile="(Default)">Server=(localdb)\MSSQLLocalDB;Database=SHGuests;Integrated Security=True;Trusted_Connection=True;</Value>
     </Setting>
+    <Setting Name="Production_Connect" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=DESKTOP-6B15SGA\SQLEXPRESS;Initial Catalog=SHGuests;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

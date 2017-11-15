@@ -35,5 +35,19 @@ namespace SHGuestsEFCore.Properties {
                 this["ConnectionString"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-6B15SGA\\SQLEXPRESS;Initial Catalog=SHGuests;Integrated Securi" +
+            "ty=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;Application" +
+            "Intent=ReadWrite;MultiSubnetFailover=False")]
+        public string Production_Connect {
+            get {
+                return ((string)(this["Production_Connect"]));
+            }
+            set {
+                this["Production_Connect"] = value;
+            }
+        }
     }
 }

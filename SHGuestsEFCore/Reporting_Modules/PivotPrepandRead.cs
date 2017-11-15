@@ -13,7 +13,7 @@ namespace SHGuestsEFCore.Reporting_Modules
         {
             dataTable = new DataTable ( "SqlPivot Report" );
             DataTableReader dataTableReader;
-            connect = new SqlConnection ( Properties.Settings.Default.ConnectionString );
+            connect = new SqlConnection ( Properties.Settings.Default.Production_Connect );
             if (connect.State != ConnectionState.Open)
             {
                 connect.Open ( );
