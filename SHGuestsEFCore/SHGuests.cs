@@ -22,7 +22,7 @@ namespace SHGuestsEFCore
         public pivot_rpt_type report_type;
         public static char [ ] _defaulttrim = new char [ ] { ' ', '\t', '\r', '\n' };
 
-        public bool rs = true, repopc = false, repopd = false, statistical_report = true, repopulate = false, readmit = false;
+        public bool rs = true, statistical_report = true, repopulate = false, readmit = false;
         public string current_combo, discharged_combo, parkroad_combo, filePath;
         public static DateTime ParkRoadCutOffDate = new DateTime ( 2011, 06, 05 );
         public static Font lbl_Font = new Font ( "Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point );
@@ -35,8 +35,8 @@ namespace SHGuestsEFCore
 
         public int num_rows = 0;
 
-        public DataModel.SHGuests db = new DataModel.SHGuests ( );
-        public List<Guests> main_List = new List<Guests> ( );
+        public DataModel.SHGuests db;
+        public List<Guests> main_List;
 
         #endregion Constants and Variables
 
@@ -44,6 +44,7 @@ namespace SHGuestsEFCore
 
         public SHGuests ( )
         {
+            db = new DataModel.SHGuests ( );
             filePath = Path.GetDirectoryName ( Application.ExecutablePath );
             int ndx = filePath.LastIndexOf ( @"\bin" );
             string tmp_Path = filePath.Substring ( 0, ndx );
@@ -66,7 +67,6 @@ namespace SHGuestsEFCore
                           .ThenBy ( g => g.FirstName );
             main_List = new List<Guests> ( t_Guests );
             LoadtheComboBoxes ( );
-            DoTotalsandLabels ( );
             return;
         }
 
@@ -78,7 +78,7 @@ namespace SHGuestsEFCore
 
             comboBox_Currents.Items.Clear ( );
             comboBox_Dischargeds.Items.Clear ( );
-            comboBox_ParkRoad.Items.Clear ( );
+            comboBox_Ineligible.Items.Clear ( );
 
             foreach (Guests i in main_List)
             {
@@ -107,7 +107,7 @@ namespace SHGuestsEFCore
                                     }
                                     else
                                     {
-                                        comboBox_ParkRoad.Items.Add ( discharged_combo );
+                                        comboBox_Ineligible.Items.Add ( discharged_combo );
                                     }
                                     break;
 
@@ -118,7 +118,7 @@ namespace SHGuestsEFCore
                                     }
                                     else
                                     {
-                                        comboBox_ParkRoad.Items.Add ( discharged_combo );
+                                        comboBox_Ineligible.Items.Add ( discharged_combo );
                                     }
                                     break;
 
@@ -134,7 +134,8 @@ namespace SHGuestsEFCore
             }
             comboBox_Currents.Refresh ( );
             comboBox_Dischargeds.Refresh ( );
-            comboBox_ParkRoad.Refresh ( );
+            comboBox_Ineligible.Refresh ( );
+            DoTotalsandLabels ( );
             return;
         }
 
@@ -155,28 +156,12 @@ namespace SHGuestsEFCore
             label_cboxtot_discharged.ForeColor = Color.Maroon;
             toolStripStatusLabel_statusLabel.Font = status_Font;
             toolStripStatusLabel_statusLabel.ForeColor = Color.DarkBlue;
-            int currentcount = db.Visits.Where ( v => v.Roster.Equals ( "C" ) ).Count ( );
-            int dischcount = db.Visits.Where ( v => v.Roster.Equals ( "D" ) ).Where ( v => v.VisitNumber == 1 ).Count ( );
-            int totalguests = currentcount + dischcount;
-            //int totalguests = db.Guests.Count ( );
-            int singlevisits = 0;
-            int multivisits = 0;
+            int currentcount = db.Guests.Where ( v => v.Roster.Equals ( "C" ) ).Count ( );
+            int dischcount = db.Guests.Where ( v => v.Roster.Equals ( "D" ) ).Count ( );               
+            int totalguests = main_List.Count ( );
             int totalvisits = db.Visits.Count ( );
-            foreach (Guests it in main_List)
-            {
-                foreach (Visits vv in it.VisitsNavigation)
-                {
-                    //totalvisits++;
-                    if (vv.VisitNumber == 1)
-                    {
-                        singlevisits++;
-                    }
-                    else
-                    {
-                        multivisits++;
-                    }
-                }
-            }
+            int singlevisits = db.Visits.Where ( v => v.VisitNumber == 1 ).Count ( );
+            int multivisits = db.Visits.Where ( g => g.VisitNumber > 1 ).Where ( g => g.Roster.Equals ( "D" ) ).Count ( );
             int parkrdvisits = db.Visits.Count ( v => v.Discharged <= ParkRoadCutOffDate );
             int no_returns = db.Visits.Count ( v => !v.CanReturn && !v.Deceased && !v.DischargeReason.Contains ( "No Show" ) );
             int fortunestreetVisits = ( dischcount - no_returns );
@@ -188,8 +173,8 @@ namespace SHGuestsEFCore
             label_ParkRoadVisits.Text = $"{parkrdvisits,8:N0} Park Road Guest Visits";
             label_NoReturnCount.Text = $"{no_returns,8:N0} Guests Ineligible to Return";
             label_FortuneStreetGuests.Text = $"{fortunestreetVisits,8:N0} Eligible to Return Guest Count";
-            label_ParkRoadGuests.Text = $"{comboBox_ParkRoad.Items.Count,9:N0} Ineligible Guest Count";
-            label_cboxtot_discharged.Text = $"{( fortunestreetVisits + comboBox_ParkRoad.Items.Count ),8:N0} Total";
+            label_ParkRoadGuests.Text = $"{comboBox_Ineligible.Items.Count,9:N0} Ineligible Guest Count";
+            label_cboxtot_discharged.Text = $"{( fortunestreetVisits + comboBox_Ineligible.Items.Count ),8:N0} Total";
             var databasename = db.Database.GetDbConnection ( ).Database;
             Version myver = new Version ( );
             myver = typeof ( SHGuests ).Assembly.GetName ( ).Version;
@@ -263,12 +248,12 @@ namespace SHGuestsEFCore
             return;
         }
 
-        private void comboBox_ParkRoad_SelectedIndexChanged ( object sender, EventArgs e )
+        private void combobox_Ineligible_SelectedIndexChanged ( object sender, EventArgs e )
         {
             string dlg_header_str = null;
             string [ ] pass_parms = null;
             string [ ] delimiter = { ", " };
-            string selected = comboBox_ParkRoad.GetItemText ( comboBox_ParkRoad.SelectedItem );
+            string selected = comboBox_Ineligible.GetItemText ( comboBox_Ineligible.SelectedItem );
             int count = 5;
             // Passed Parameters are as follow: [0] = Last Name, [1] = First Name, [2] = Date of
             // Birth, [3] = Number of Visits 3rd level of key to table
@@ -518,19 +503,10 @@ namespace SHGuestsEFCore
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "admits_by_month.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt);
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Monthly Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.MonthlyReport;
-                sptf.Text = query_title;
-                sptf.referring_switch = true;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Monthly Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.MonthlyReport, true, ref query_title );
+            Show ( );
             return;
         }
 
@@ -540,19 +516,10 @@ namespace SHGuestsEFCore
             FileInfo sql_file = new FileInfo ( filePath + "admit_by_months.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
             SqlConnection en_conn = new SqlConnection ( Properties.Settings.Default.ConnectionString );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Annual Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.Normal;
-                sptf.Text = query_title;
-                sptf.referring_switch = true;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Annual Admissions Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.Normal, true, ref query_title );
+            Show ( );
             return;
         }
 
@@ -561,19 +528,10 @@ namespace SHGuestsEFCore
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "discharges_by_month.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Monthly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.MonthlyReport;
-                sptf.Text = query_title;
-                sptf.referring_switch = true;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Monthly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.MonthlyReport, true, ref query_title );
+            Show ( );
             return;
         }
 
@@ -582,19 +540,10 @@ namespace SHGuestsEFCore
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "discharges_by_months.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Yearly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.Normal;
-                sptf.Text = query_title;
-                sptf.referring_switch = true;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Yearly Discharges Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.Normal, true, ref query_title );
+            Show ( );
             return;
         }
 
@@ -603,19 +552,10 @@ namespace SHGuestsEFCore
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "agency_admissions_by_year.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Admissions by Hospital Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.Normal;
-                sptf.Text = query_title;
-                sptf.referring_switch = true;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Admissions by Hospital Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.Normal, true, ref query_title );
+            Show ( );
             return;
         }
 
@@ -623,20 +563,11 @@ namespace SHGuestsEFCore
         {
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "annual_worker_admissions.sql" );
+            string query_title = $"Samaritan House Yearly Admissions by Agency and Social Worker Since 06-05-2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Yearly Admissions by Agency and Social Worker Since 06-05-2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.Worker;
-                sptf.Text = query_title;
-                sptf.referring_switch = false;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.Worker, false, ref query_title );
+            Show ( );
             return;
         }
 
@@ -645,19 +576,10 @@ namespace SHGuestsEFCore
             PivotPrepandRead ppar = new PivotPrepandRead ( );
             FileInfo sql_file = new FileInfo ( filePath + "sw_returns_report.sql" );
             string str_sql = sql_file.OpenText ( ).ReadToEnd ( );
-            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt );
-            if (dtr.HasRows)
-            {
-                PivotTable_Reports sptf = new PivotTable_Reports ( dt, dtr );
-                string query_title = $"Samaritan House Social Worker Return Report Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
-                sptf.report_type = pivot_rpt_type.Worker;
-                sptf.Text = query_title;
-                sptf.referring_switch = false;
-                Hide ( );
-                sptf.ShowDialog ( );
-                dtr.Close ( );
-                Show ( );
-            }
+            string query_title = $"Samaritan House Social Worker Return Report Since 06/05/2011 as of: {DateTime.Today.ToString ( "MM/dd/yyyy" )}";
+            Hide ( );
+            DataTableReader dtr = ppar.PivotPrep ( ref str_sql, out DataTable dt, pivot_rpt_type.Worker, false, ref query_title );
+            Show ( );
             return;
         }
 

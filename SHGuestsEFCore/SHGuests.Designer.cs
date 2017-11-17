@@ -78,7 +78,7 @@
             this.label_CurrentGuestSelection = new System.Windows.Forms.Label();
             this.label_DischargedGuestSelection = new System.Windows.Forms.Label();
             this.label_FortuneStreetGuests = new System.Windows.Forms.Label();
-            this.comboBox_ParkRoad = new System.Windows.Forms.ComboBox();
+            this.comboBox_Ineligible = new System.Windows.Forms.ComboBox();
             this.label_ParkRoadGuests = new System.Windows.Forms.Label();
             this.label_cboxtot_discharged = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_SHLogo)).BeginInit();
@@ -503,15 +503,15 @@
             this.label_FortuneStreetGuests.TabIndex = 16;
             this.label_FortuneStreetGuests.Text = "Fortune Street Guests";
             // 
-            // comboBox_ParkRoad
+            // comboBox_Ineligible
             // 
-            this.comboBox_ParkRoad.FormattingEnabled = true;
-            this.comboBox_ParkRoad.Location = new System.Drawing.Point(504, 180);
-            this.comboBox_ParkRoad.Name = "comboBox_ParkRoad";
-            this.comboBox_ParkRoad.Size = new System.Drawing.Size(388, 26);
-            this.comboBox_ParkRoad.TabIndex = 17;
-            this.comboBox_ParkRoad.SelectedIndexChanged += new System.EventHandler(this.comboBox_ParkRoad_SelectedIndexChanged);
-            // 
+            this.comboBox_Ineligible.FormattingEnabled = true;
+            this.comboBox_Ineligible.Location = new System.Drawing.Point(504, 180);
+            this.comboBox_Ineligible.Name = "comboBox_Ineligible";
+            this.comboBox_Ineligible.Size = new System.Drawing.Size(388, 26);
+            this.comboBox_Ineligible.TabIndex = 17;
+            this.comboBox_Ineligible.SelectedIndexChanged += new System.EventHandler(this.combobox_Ineligible_SelectedIndexChanged);
+            // combobox_Ineligible_SelectedIndexChanged
             // label_ParkRoadGuests
             // 
             this.label_ParkRoadGuests.AutoSize = true;
@@ -519,7 +519,7 @@
             this.label_ParkRoadGuests.Name = "label_ParkRoadGuests";
             this.label_ParkRoadGuests.Size = new System.Drawing.Size(131, 18);
             this.label_ParkRoadGuests.TabIndex = 18;
-            this.label_ParkRoadGuests.Text = "Park Road Guests";
+            this.label_ParkRoadGuests.Text = "Ineligibles";
             // 
             // label_cboxtot_discharged
             // 
@@ -537,7 +537,7 @@
             this.ClientSize = new System.Drawing.Size(962, 493);
             this.Controls.Add(this.label_cboxtot_discharged);
             this.Controls.Add(this.label_ParkRoadGuests);
-            this.Controls.Add(this.comboBox_ParkRoad);
+            this.Controls.Add(this.comboBox_Ineligible);
             this.Controls.Add(this.label_FortuneStreetGuests);
             this.Controls.Add(this.label_DischargedGuestSelection);
             this.Controls.Add(this.label_CurrentGuestSelection);
@@ -625,7 +625,7 @@
         private System.Windows.Forms.ToolStripMenuItem guestWalkOffsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Social_Worker_Guest_List;
         private System.Windows.Forms.Label label_FortuneStreetGuests;
-        private System.Windows.Forms.ComboBox comboBox_ParkRoad;
+        private System.Windows.Forms.ComboBox comboBox_Ineligible;
         private System.Windows.Forms.Label label_ParkRoadGuests;
         private System.Windows.Forms.Label label_cboxtot_discharged;
     }

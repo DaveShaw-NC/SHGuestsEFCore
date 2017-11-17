@@ -134,26 +134,6 @@ namespace SHGuestsEFCore.Called_Dialogs
             dgvp.integer_fmt = "#,##0";
             dgvp.stat_rpt = stat_rpt;
             cr.Layout_GridView ( dgv, dgvp );
-            //string my_Fontfamily = "Microsoft Sans Serif";
-            //dgv.AutoGenerateColumns = true;
-            //dgv.AllowUserToAddRows = false;
-            //dgv.AllowUserToDeleteRows = false;
-            //dgv.RowHeadersVisible = true;
-            //dgv.EnableHeadersVisualStyles = false;
-            //dgv.ShowCellToolTips = false;
-            //dgv.ColumnHeadersHeight = 40;
-            //dgv.BackgroundColor = Color.LightGray;
-            //dgv.DefaultCellStyle.BackColor = Color.White;
-            //dgv.DefaultCellStyle.ForeColor = Color.Black;
-            //dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.LightBlue;
-            //dgv.AlternatingRowsDefaultCellStyle.ForeColor = Color.Black;
-            //dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.BottomCenter;
-            //dgv.ColumnHeadersDefaultCellStyle.Font = new Font ( my_Fontfamily, 10, FontStyle.Bold, GraphicsUnit.Point );
-            //dgv.DefaultCellStyle.Font = new Font ( my_Fontfamily, 9, FontStyle.Regular, GraphicsUnit.Point );
-            //dgv.ScrollBars = ScrollBars.Both;
-            //dgv.BorderStyle = BorderStyle.Fixed3D;
-            //dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.LightBlue;
-            //dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.Blue;
             return;
         }
 
