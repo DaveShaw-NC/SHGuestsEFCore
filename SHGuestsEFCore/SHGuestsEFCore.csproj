@@ -181,6 +181,7 @@
     <Compile Include="DataModel\Photos.cs" />
     <Compile Include="DataModel\SHGuests.cs" />
     <Compile Include="DataModel\Visits.cs" />
+    <Compile Include="Reporting_Modules\DGVPrinter.cs" />
     <Compile Include="Reporting_Modules\Grouped_Reports.cs" />
     <Compile Include="Reporting_Modules\LINQ_Reports.cs" />
     <Compile Include="Reporting_Modules\PivotPrepandRead.cs" />
@@ -251,10 +252,6 @@
     <ProjectReference Include="..\CommonRoutines\CommonRoutines\CommonRoutines.csproj">
       <Project>{6a6d1edc-0877-4eb9-a18e-b685e5f36ab5}</Project>
       <Name>CommonRoutines</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataGridPrinter\DataGridPrinter.vbproj">
-      <Project>{d1061ea2-a313-4439-b6d5-4052e358f2c9}</Project>
-      <Name>DataGridPrinter</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectListViewDemo\ListViewPrinter\ListViewPrinter2012.csproj">
       <Project>{e73a10bd-2b5a-4bac-897f-3a58cfc07631}</Project>

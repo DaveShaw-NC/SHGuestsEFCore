@@ -215,7 +215,11 @@ namespace SHGuestsEFCore.Called_Dialogs
             foundvd = new Visits ( );
             var db = new DataModel.SHGuests ( );
             update_record = new Guests ( );
-            update_record = db.Guests.Find ( guestkey );                  // Find a specific record using Primary Key Values 
+            update_record = db.Guests                                   // Find a specific record using Primary Key Values
+                            .Include ( g => g.VisitsNavigation )
+                            .Include ( g => g.Photos )
+                            .Where ( g => g.GuestId == GiD )
+                            .Single ( );
             foreach (Visits vvv in update_record.VisitsNavigation)
             {
                 if (vvv.VisitNumber == num_of_visits)

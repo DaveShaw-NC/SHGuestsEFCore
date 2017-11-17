@@ -1,4 +1,4 @@
-﻿using DataGridPrinter.DataGridPrinter;
+﻿//using DataGridPrinter.DataGridPrinter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonRoutines;
+using SHGuestsEFCore.Reporting_Modules;
 
 namespace SHGuestsEFCore.Called_Dialogs
 {
@@ -35,7 +36,7 @@ namespace SHGuestsEFCore.Called_Dialogs
         public Font hdr_font = new Font ( "Times New Roman", 16F, FontStyle.Bold, GraphicsUnit.Pixel ),
                cell_font = new Font ( "TImes New Roman", 14F, FontStyle.Regular, GraphicsUnit.Pixel );
 
-        private GridPrinter gp;
+        //private GridPrinter gp;
 
         #endregion Variables and Constants
 
@@ -140,7 +141,7 @@ namespace SHGuestsEFCore.Called_Dialogs
         #endregion Grid View Layout
 
         #region Event Handlers
-
+         
         #region Quit the Display
 
         private void Quit_the_query_buttonClick ( object sender, EventArgs e )
@@ -152,33 +153,59 @@ namespace SHGuestsEFCore.Called_Dialogs
 
         #region Printing Area
 
+        //private void printtheDocumentButton_Click ( object sender, EventArgs e )
+        //{
+        //    if (gp == null)
+        //    {
+        //        gp = new GridPrinter ( results_view1 );
+        //    }
+        //    gp.HeaderText = this.Text;
+        //    gp.HeaderHeightPercent = 5;
+        //    gp.FooterHeightPercent = 5;
+        //    gp.InterSectionSpacingPercent = 2;
+        //    PrintDocument pd = new PrintDocument ( );
+        //    pd.DefaultPageSettings.Landscape = true;
+        //    Font printFont = new Font ( "Microsoft Sans Serif", 10F );
+        //    pd.DefaultPageSettings.Margins = new Margins ( 10, 10, 10, 10 );
+        //    pd.OriginAtMargins = true;
+        //    PrintPreviewDialog ppDialog = new PrintPreviewDialog ( );
+        //    gp.PrintDocument.DefaultPageSettings.Landscape = true;
+        //    ppDialog.Document = gp.PrintDocument;
+        //    ppDialog.AutoScaleMode = AutoScaleMode.Font;
+        //    ppDialog.UseAntiAlias = true;
+        //    DialogResult res = ppDialog.ShowDialog ( );
+        //    if (res == DialogResult.OK)
+        //    {
+        //        gp.Print ( );
+        //    }
+        //    return;
+        //}
         private void printtheDocumentButton_Click ( object sender, EventArgs e )
         {
-            if (gp == null)
+            DGVPrinter printer = new DGVPrinter ( );
+            printer.Title = this.Text;
+            printer.PageNumbers = true;
+            printer.PageNumberInHeader = false;
+            printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
+            printer.TitleFont = new Font ( "MS Sans Serif", 10F, FontStyle.Bold, GraphicsUnit.Point );
+            printer.FooterFont = printer.TitleFont;
+            printer.Footer = $"Copyright {DateTime.Today.Year.ToString ( )}";
+            printer.FooterSpacing = 15;
+            printer.FooterAlignment = StringAlignment.Center;
+            printer.printDocument.DefaultPageSettings.Landscape = true;
+            printer.printDocument.OriginAtMargins = true;
+            printer.KeepRowsTogether = true;
+            printer.KeepRowsTogetherTolerance = 50;
+            printer.PrintPreviewZoom = 0.75F;
+            printer.printDocument.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins ( 10, 10, 10, 10 );
+            //printer.PrintPreviewDataGridView ( dataGridView_mongoGuests );
+
+            if (DialogResult.OK == printer.DisplayPrintDialog ( ))
             {
-                gp = new GridPrinter ( results_view1 );
+                printer.PrintPreviewNoDisplay ( results_view1 );
             }
-            gp.HeaderText = this.Text;
-            gp.HeaderHeightPercent = 5;
-            gp.FooterHeightPercent = 5;
-            gp.InterSectionSpacingPercent = 2;
-            PrintDocument pd = new PrintDocument ( );
-            pd.DefaultPageSettings.Landscape = true;
-            Font printFont = new Font ( "Microsoft Sans Serif", 10F );
-            pd.DefaultPageSettings.Margins = new Margins ( 10, 10, 10, 10 );
-            pd.OriginAtMargins = true;
-            PrintPreviewDialog ppDialog = new PrintPreviewDialog ( );
-            gp.PrintDocument.DefaultPageSettings.Landscape = true;
-            ppDialog.Document = gp.PrintDocument;
-            ppDialog.AutoScaleMode = AutoScaleMode.Font;
-            ppDialog.UseAntiAlias = true;
-            DialogResult res = ppDialog.ShowDialog ( );
-            if (res == DialogResult.OK)
-            {
-                gp.Print ( );
-            }
-            return;
         }
+
     }
 
     #endregion Printing Area

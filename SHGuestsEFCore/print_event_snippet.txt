@@ -1,0 +1,25 @@
+        private void button_PrintGridView_Click ( object sender, EventArgs e )
+        {
+            DGVPrinter printer = new DGVPrinter ( );
+            printer.Title = this.Text;
+            printer.PageNumbers = true;
+            printer.PageNumberInHeader = false;
+            printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
+            printer.TitleFont = new Font ( "MS Sans Serif", 10F, FontStyle.Bold, GraphicsUnit.Point );
+            printer.FooterFont = printer.TitleFont;
+            printer.Footer = "Test Footers";
+            printer.FooterSpacing = 15;
+            printer.printDocument.DefaultPageSettings.Landscape = true;
+            printer.printDocument.OriginAtMargins = true;
+            printer.KeepRowsTogether = true;
+            printer.KeepRowsTogetherTolerance = 50;
+            printer.PrintPreviewZoom = 0.75F;
+            printer.printDocument.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins ( 25, 25, 50, 50 );
+            //printer.PrintPreviewDataGridView ( dataGridView_mongoGuests );
+
+            if (DialogResult.OK == printer.DisplayPrintDialog ( ))
+            {
+                printer.PrintPreviewNoDisplay ( dataGridView_mongoGuests );
+            }
+        }
+

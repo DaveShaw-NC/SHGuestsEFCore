@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SHGuestsEFCore", "SHGuestsEFCore\SHGuestsEFCore.csproj", "{EEE1AC30-1E97-4D23-8DEB-1648869F45CD}"
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "DataGridPrinter", "DataGridPrinter\DataGridPrinter.vbproj", "{D1061EA2-A313-4439-B6D5-4052E358F2C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectListView2012", "ObjectListViewDemo\ObjectListView\ObjectListView2012.csproj", "{18FEDA0C-D147-4286-B39A-01204808106A}"
 EndProject
@@ -28,10 +26,6 @@ Global
 		{EEE1AC30-1E97-4D23-8DEB-1648869F45CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEE1AC30-1E97-4D23-8DEB-1648869F45CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEE1AC30-1E97-4D23-8DEB-1648869F45CD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D1061EA2-A313-4439-B6D5-4052E358F2C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D1061EA2-A313-4439-B6D5-4052E358F2C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D1061EA2-A313-4439-B6D5-4052E358F2C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D1061EA2-A313-4439-B6D5-4052E358F2C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18FEDA0C-D147-4286-B39A-01204808106A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{18FEDA0C-D147-4286-B39A-01204808106A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18FEDA0C-D147-4286-B39A-01204808106A}.Release|Any CPU.ActiveCfg = Release|Any CPU
