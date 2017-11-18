@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -14,21 +7,32 @@ namespace SHGuestsEFCore.Called_Dialogs
 {
     public partial class Former_Guest_Add : Form
     {
+        #region Variables and Constants
+
         public DateTime dob, last_visit_date, admit_date;
         public int num_of_visits, ssn_in;
         public Boolean yes_return = true, can_return = false, deceased = false;
+
         public string denial_reason, admit_reason, str_ssn, gender, lname, fname,
                       connStr, l_name, f_name, birthday, last_visit, refer_sw, refer_hosp;
 
-
         public Guests discharged_guest = new Guests ( );
         public Visits vd = new Visits ( );
+
+        #endregion Variables and Constants
+
+        #region Constructor and Form Loading
 
         public Former_Guest_Add ( )
         {
             InitializeComponent ( );
         }
-        void Add_guest_buttonClick ( object sender, EventArgs e )
+
+        #endregion Constructor and Form Loading
+
+        #region Event(Button) Handlers
+
+        private void Add_guest_buttonClick ( object sender, EventArgs e )
         {
             discharged_guest.BirthDate = dob_date_picker.Value;
             discharged_guest.LastName = lastname_entry.Text;
@@ -89,7 +93,6 @@ namespace SHGuestsEFCore.Called_Dialogs
                 MessageBox.Show ( "Referring Social Worker may not be blank. Please try again" );
                 this.ActiveControl = referring_sw;
                 return;
-
             }
             vd.Agency = referring_hospital.Text;
             if (vd.Agency.Length == 0 || vd.Agency.Equals ( null ))
@@ -97,7 +100,6 @@ namespace SHGuestsEFCore.Called_Dialogs
                 MessageBox.Show ( "Referring Social Worker may not be blank. Please try again" );
                 this.ActiveControl = referring_hospital;
                 return;
-
             }
             discharged_guest.LastVisitDate = vd.AdmitDate;
             vd.EditDate = DateTime.Now.ToUniversalTime ( );
@@ -121,9 +123,11 @@ namespace SHGuestsEFCore.Called_Dialogs
             Close ( );
         }
 
-        void Button1Click ( object sender, EventArgs e )
+        private void Button1Click ( object sender, EventArgs e )
         {
             Close ( );
         }
+
+        #endregion Event(Button) Handlers
     }
 }

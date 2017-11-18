@@ -1,4 +1,4 @@
-﻿//using DataGridPrinter.DataGridPrinter;
+﻿using DataGridPrinter.DataGridPrinter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,7 +36,7 @@ namespace SHGuestsEFCore.Called_Dialogs
         public Font hdr_font = new Font ( "Times New Roman", 16F, FontStyle.Bold, GraphicsUnit.Pixel ),
                cell_font = new Font ( "TImes New Roman", 14F, FontStyle.Regular, GraphicsUnit.Pixel );
 
-        //private GridPrinter gp;
+        private GridPrinter gp;
 
         #endregion Variables and Constants
 
@@ -153,58 +153,66 @@ namespace SHGuestsEFCore.Called_Dialogs
 
         #region Printing Area
 
-        //private void printtheDocumentButton_Click ( object sender, EventArgs e )
-        //{
-        //    if (gp == null)
-        //    {
-        //        gp = new GridPrinter ( results_view1 );
-        //    }
-        //    gp.HeaderText = this.Text;
-        //    gp.HeaderHeightPercent = 5;
-        //    gp.FooterHeightPercent = 5;
-        //    gp.InterSectionSpacingPercent = 2;
-        //    PrintDocument pd = new PrintDocument ( );
-        //    pd.DefaultPageSettings.Landscape = true;
-        //    Font printFont = new Font ( "Microsoft Sans Serif", 10F );
-        //    pd.DefaultPageSettings.Margins = new Margins ( 10, 10, 10, 10 );
-        //    pd.OriginAtMargins = true;
-        //    PrintPreviewDialog ppDialog = new PrintPreviewDialog ( );
-        //    gp.PrintDocument.DefaultPageSettings.Landscape = true;
-        //    ppDialog.Document = gp.PrintDocument;
-        //    ppDialog.AutoScaleMode = AutoScaleMode.Font;
-        //    ppDialog.UseAntiAlias = true;
-        //    DialogResult res = ppDialog.ShowDialog ( );
-        //    if (res == DialogResult.OK)
-        //    {
-        //        gp.Print ( );
-        //    }
-        //    return;
-        //}
         private void printtheDocumentButton_Click ( object sender, EventArgs e )
         {
-            DGVPrinter printer = new DGVPrinter ( );
-            printer.Title = this.Text;
-            printer.PageNumbers = true;
-            printer.PageNumberInHeader = false;
-            printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
-            printer.TitleFont = new Font ( "MS Sans Serif", 10F, FontStyle.Bold, GraphicsUnit.Point );
-            printer.FooterFont = printer.TitleFont;
-            printer.Footer = $"Copyright {DateTime.Today.Year.ToString ( )}";
-            printer.FooterSpacing = 15;
-            printer.FooterAlignment = StringAlignment.Center;
-            printer.printDocument.DefaultPageSettings.Landscape = true;
-            printer.printDocument.OriginAtMargins = true;
-            printer.KeepRowsTogether = true;
-            printer.KeepRowsTogetherTolerance = 50;
-            printer.PrintPreviewZoom = 0.75F;
-            printer.printDocument.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins ( 10, 10, 10, 10 );
-            //printer.PrintPreviewDataGridView ( dataGridView_mongoGuests );
-
-            if (DialogResult.OK == printer.DisplayPrintDialog ( ))
+            if (gp == null)
             {
-                printer.PrintPreviewNoDisplay ( results_view1 );
+                gp = new GridPrinter ( results_view1 );
             }
+            gp.HeaderText = this.Text;
+            gp.HeaderHeightPercent = 5;
+            gp.FooterHeightPercent = 5;
+            gp.InterSectionSpacingPercent = 2;
+            PrintDocument pd = new PrintDocument ( );
+            pd.DefaultPageSettings.Landscape = true;
+            Font printFont = new Font ( "Microsoft Sans Serif", 10F );
+            pd.DefaultPageSettings.Margins = new Margins ( 10, 10, 10, 10 );
+            pd.OriginAtMargins = true;
+            PrintPreviewDialog ppDialog = new PrintPreviewDialog ( );
+            gp.PrintDocument.DefaultPageSettings.Landscape = true;
+            ppDialog.Document = gp.PrintDocument;
+            ppDialog.AutoScaleMode = AutoScaleMode.Font;
+            ppDialog.UseAntiAlias = true;
+            DialogResult res = ppDialog.ShowDialog ( );
+            if (res == DialogResult.OK)
+            {
+                gp.Print ( );
+            }
+            return;
         }
+        //private void printtheDocumentButton_Click ( object sender, EventArgs e )
+        //{
+        //    DGVPrinter printer = new DGVPrinter ( );
+        //    printer.Title = this.Text;
+        //    printer.PageNumbers = true;
+        //    printer.PageNumberInHeader = false;
+        //    printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
+        //    printer.TitleFont = new Font ( "MS Sans Serif", 14F, FontStyle.Bold, GraphicsUnit.Point );
+        //    printer.TitleColor = Color.Blue;
+        //    printer.TitleBorder = new Pen ( Color.Black, 1.5F );
+        //    printer.TitleSpacing = 50F;
+        //    printer.SubTitle = string.Empty;
+        //    printer.SubTitleSpacing = 1.0F;
+        //    printer.FooterSpacing = 1.0F;
+        //    printer.FooterFont = printer.TitleFont;
+        //    printer.Footer = $"Copyright {DateTime.Today.Year.ToString ( )}, Samaritan House, Inc.";
+        //    printer.FooterSpacing = 50F;
+        //    printer.FooterAlignment = StringAlignment.Center;
+        //    printer.printDocument.DefaultPageSettings.Landscape = ( stat_rpt ) ? false : true;
+        //    //printer.printDocument.OriginAtMargins = true;
+        //    printer.KeepRowsTogether = true;
+        //    printer.KeepRowsTogetherTolerance = 50;
+        //    printer.PrintPreviewZoom = 0.75F;
+        //    printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
+        //    printer.HeaderCellAlignment = StringAlignment.Near;
+        //    printer.printDocument.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins ( 10, 10, 20, 20 );
+        //    printer.TableAlignment = DGVPrinter.Alignment.NotSet;
+
+        //    if (DialogResult.OK == printer.DisplayPrintDialog ( ))
+        //    {
+        //        printer.PrintPreviewNoDisplay ( results_view1 );
+        //    }
+        //}
 
     }
 

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -14,6 +8,8 @@ namespace SHGuestsEFCore.Called_Dialogs
 {
     public partial class Discharge_Guest : Form
     {
+        #region Variables and Constants
+
         public DateTime dob, admit_date, last_visit_date, edit_date;
         public object [ ] guestkey, vkey;
         public bool can_return, deceased = false;
@@ -26,6 +22,9 @@ namespace SHGuestsEFCore.Called_Dialogs
         private Guests update_record = new Guests ( );
         private Visits vd = new Visits ( );
 
+        #endregion Variables and Constants
+
+        #region Constructor and Form Loading
 
         public Discharge_Guest ( int GuestID, int VisitID )
         {
@@ -68,6 +67,10 @@ namespace SHGuestsEFCore.Called_Dialogs
             return;
         }
 
+        #endregion Constructor and Form Loading
+
+        #region Event(Button) Handlers
+
         private void Discharge_buttonClick ( object sender, EventArgs e )
         {
             using (var db = new DataModel.SHGuests ( ))
@@ -100,5 +103,7 @@ namespace SHGuestsEFCore.Called_Dialogs
         {
             Close ( );
         }
+
+        #endregion Event(Button) Handlers
     }
 }

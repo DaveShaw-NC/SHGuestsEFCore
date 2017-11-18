@@ -443,7 +443,7 @@ namespace SHGuestsEFCore
 
             grp = gr.TotalVisitsbyGenderandVisists ( );
             string query_title = $"Samaritan House Bed Days Statistics as of: {DateTime.Today:D}";
-            statistical_report = false;
+            statistical_report = true;
             ViewReport ( grp, query_title, statistical_report );
             return;
         }

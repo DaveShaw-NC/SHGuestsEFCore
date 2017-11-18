@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Mail;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -39,6 +34,8 @@ namespace SHGuestsEFCore.Called_Dialogs
         public Random rnd = new Random ( );
 
         #endregion Variables Constants
+
+        #region Constructor and Form Loading
 
         public Add_CG ( bool readmission, int GuestID )
 
@@ -76,6 +73,30 @@ namespace SHGuestsEFCore.Called_Dialogs
             return;
         }
 
+        private void build_the_display ( Guests rec_in )
+        {
+            dob_picker.Value = rec_in.BirthDate;
+            last_name_box.Text = rec_in.LastName;
+            first_name_box.Text = rec_in.FirstName;
+            gender_box.Text = rec_in.Gender;
+            admit_date_picker.Value = DateTime.Today;
+            visit_num_box.Text = rec_in.Visits.ToString ( );
+            str_ssn = rec_in.Ssn.ToString ( "000-00-0000" );
+            ssn_id_box.Text = str_ssn;
+            last_name_box.ReadOnly = true;
+            first_name_box.ReadOnly = true;
+            gender_box.ReadOnly = true;
+            dob_picker.Enabled = false;
+            ssn_id_box.ReadOnly = true;
+            admit_date_picker.Focus ( );
+            this.ActiveControl = admit_reason_box;
+            return;
+        }
+
+        #endregion Constructor and Form Loading
+
+        #region Event(Button) Handlers
+
         private void Exit_buttonClick ( object sender, EventArgs e )
         {
             Close ( );
@@ -110,7 +131,7 @@ namespace SHGuestsEFCore.Called_Dialogs
                 updated.BirthDate = dob_picker.Value;
                 age = DateTime.Today - updated.BirthDate;
                 int tmp_years = ( int )( ( double )age.TotalDays / 365.2524 );
-                string age_verify = $"Guest age < 18 years\r\nCalculated age is {tmp_years:N0} years\r\nShould not be admitted.";
+                string age_verify = $"Guest age < 18 years{Environment.NewLine}Calculated age is {tmp_years:N0} years{Environment.NewLine}Should not be admitted.";
                 if (tmp_years < 18)
                 {
                     res = MessageBox.Show ( age_verify,
@@ -268,7 +289,6 @@ namespace SHGuestsEFCore.Called_Dialogs
                 try
                 {
                     updated_items = db.SaveChanges ( );
-                    SendAutomatedEmail ( updated, vdata );
                     MessageBox.Show ( "Successfully Added" + Environment.NewLine + updated.ToString ( ) + " added to Current Guest roster",
                         "Success",
                         MessageBoxButtons.OK,
@@ -286,169 +306,7 @@ namespace SHGuestsEFCore.Called_Dialogs
 
         #endregion Validate and Add the Guest and Visit
 
-        private void build_the_display ( Guests rec_in )
-        {
-            dob_picker.Value = rec_in.BirthDate;
-            last_name_box.Text = rec_in.LastName;
-            first_name_box.Text = rec_in.FirstName;
-            gender_box.Text = rec_in.Gender;
-            admit_date_picker.Value = DateTime.Today;
-            visit_num_box.Text = rec_in.Visits.ToString ( );
-            str_ssn = rec_in.Ssn.ToString ( "000-00-0000" );
-            ssn_id_box.Text = str_ssn;
-            last_name_box.ReadOnly = true;
-            first_name_box.ReadOnly = true;
-            gender_box.ReadOnly = true;
-            dob_picker.Enabled = false;
-            ssn_id_box.ReadOnly = true;
-            admit_date_picker.Focus ( );
-            this.ActiveControl = admit_reason_box;
-        }
-
-        #region Send the Email
-
-        private void SendAutomatedEmail ( Guests guest_in, Visits vd_in )
-        {
-            try
-            {
-                //string email_sender = Properties.Settings.Default.email_sender;
-                //string email_pswd = Properties.Settings.Default.email_pswd;
-                //string mainToAddress = Properties.Settings.Default.email_receiver;
-                //SecureString em_pass = new SecureString ( );
-                //MailMessage m_Message = new MailMessage ( );
-                //SmtpClient smtp = new SmtpClient ( "smtp.gmail.com", 587 );
-                //m_Message.From = new MailAddress ( email_sender );
-                //m_Message.To.Add ( new MailAddress ( mainToAddress ) );
-                ////m_Message.CC.Add ( new MailAddress ( Properties.Settings.Default.email_cc2 ) );
-                ////m_Message.CC.Add ( new MailAddress ( Properties.Settings.Default.email_cc1 ) );
-                //m_Message.Subject = "Guest admitted as of: " + DateTime.Today.ToShortDateString ( );
-                //m_Message.IsBodyHtml = false;
-                //m_Message.Priority = MailPriority.High;
-                //Build_Message_Body ( guest_in, vd_in );
-                //m_Message.Body = message_body.ToString ( );
-                //smtp.EnableSsl = true;
-                //smtp.UseDefaultCredentials = false;
-                //if (email_pswd.Length > 0)
-                //{
-                //    foreach (var c in email_pswd.ToCharArray ( )) em_pass.AppendChar ( c );
-                //}
-                //smtp.Credentials = new NetworkCredential ( email_sender, em_pass );
-                //smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                ////*
-                ////* Send the email async so the thread can continue processing. Notify user when email has been sent
-                ////*
-                //smtp.SendCompleted += new SendCompletedEventHandler ( SendCompletedCallback );
-                //smtp.SendMailAsync ( m_Message );
-            }
-            catch (Exception)
-            { }
-        }
-
-        private void Build_Message_Body ( Guests rec_in, Visits vd_in )
-        {
-            message_body = new StringBuilder ( );
-            message_body.AppendLine ( $"Information for guest admitted on {DateTime.Today.ToLongDateString ( )} {Environment.NewLine}" );
-            message_body.AppendLine ( $"Name:\t\t\t{rec_in.FirstName} {rec_in.LastName} " );
-            message_body.AppendLine ( $"Admitted On:\t\t{vd_in.AdmitDate.ToShortDateString ( )} for {vd_in.AdmitReason}" );
-            message_body.AppendLine ( $"Referring Information:\t{vd_in.Agency} by {vd_in.Worker}" );
-            message_body.AppendLine ( $"Discharged On:\t\t{vd_in.Discharged.ToShortDateString ( )} for {vd_in.DischargeReason}" );
-            message_body.AppendLine ( $"Personal Information:" );
-            message_body.AppendLine ( $"Date of Birth:\t\t{rec_in.BirthDate.ToShortDateString ( )} SSN: {rec_in.Ssn.ToString ( "000-00-0000" )}" );
-            message_body.AppendLine ( $"Ten Day Stay ends on:\t{vd_in.Discharged.ToLongDateString ( )}\tVisit Number: {vd_in.VisitNumber:N0}" );
-            return;
-        }
-
-        private void SendCompletedCallback ( object sender, AsyncCompletedEventArgs e )
-        {
-            MessageBox.Show ( "Email sent successfully", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information );
-            return;
-        }
-
-        #endregion Send the Email
-
-        #region Common Routines
-
-        private string BuildVisitKey ( Guests item_in, int visit_in )
-        {
-            StringBuilder sb = new StringBuilder ( );
-            string tmp_ssn = item_in.Ssn.ToString ( "000000000" );
-            sb.Append ( item_in.BirthDate.ToString ( "yyyyMMdd" ) );
-            if (item_in.LastName.Length < 5)
-            {
-                sb.Append ( item_in.LastName.PadRight ( 5 ).ToUpper ( ) );
-            }
-            else
-            {
-                sb.Append ( item_in.LastName.Substring ( 0, 5 ).ToUpper ( ) );
-            }
-            if (item_in.FirstName.Length < 4)
-            {
-                sb.Append ( item_in.FirstName.PadRight ( 4 ).ToUpper ( ) );
-            }
-            else
-            {
-                sb.Append ( item_in.FirstName.Substring ( 0, 4 ).ToUpper ( ) );
-            }
-            sb.Append ( tmp_ssn.Substring ( 5, 4 ) );
-            sb.Append ( visit_in.ToString ( ) );
-            string tmps = sb.ToString ( );
-            return tmps;
-        }
-
-        private string BuildPartialVisitKey ( Guests item_in )
-        {
-            StringBuilder sb = new StringBuilder ( );
-            string tmp_ssn = item_in.Ssn.ToString ( "000000000" );
-            sb.Append ( item_in.BirthDate.ToString ( "yyyyMMdd" ) );
-            if (item_in.LastName.Length < 5)
-            {
-                sb.Append ( item_in.LastName.PadRight ( 5 ).ToUpper ( ) );
-            }
-            else
-            {
-                sb.Append ( item_in.LastName.Substring ( 0, 5 ).ToUpper ( ) );
-            }
-            if (item_in.FirstName.Length < 4)
-            {
-                sb.Append ( item_in.FirstName.PadRight ( 4 ).ToUpper ( ) );
-            }
-            else
-            {
-                sb.Append ( item_in.FirstName.Substring ( 0, 4 ).ToUpper ( ) );
-            }
-            sb.Append ( tmp_ssn.Substring ( 5, 4 ) );
-            string tmps = sb.ToString ( );
-            return tmps;
-        }
-
-        //private Tuple<Guest, List<VisitData>> GetAllVisitsData ( Guest rec_in )
-        //{
-        //    List<VisitData> vd_list = new List<VisitData> ( );
-        //    using (var db = new NewGuestsEntities ( ))
-        //    {
-        //        if (rec_in.Visits > 1)
-        //        {
-        //            string tmp_key = BuildPartialVisitKey ( rec_in );
-        //            var records = ( from vd in db.VisitDatas.AsEnumerable ( )
-        //                            where vd.VisitKey.Contains ( tmp_key )
-        //                            select vd ).ToList ( );
-        //            vd_list = new List<VisitData> ( records );
-        //        }
-        //        else
-        //        {
-        //            string Vkey = BuildVisitKey ( rec_in, rec_in.Visits );
-        //            object [ ] keyvalues = new object [ ] { Vkey };
-        //            VisitData vd = db.VisitDatas.Find ( keyvalues );
-        //            if (vd != null)
-        //            {
-        //                vd_list.Add ( vd );
-        //            }
-        //        }
-        //    }
-        //    return new Tuple<Guest, List<VisitData>> ( rec_in, vd_list );
-        //}
-
-        #endregion Common Routines
+        #endregion Event(Button) Handlers
 
         #region Miscellaneous Routines
 

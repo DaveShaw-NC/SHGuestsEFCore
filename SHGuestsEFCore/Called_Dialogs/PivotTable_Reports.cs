@@ -1,8 +1,8 @@
-﻿using BrightIdeasSoftware;
-using System;
+﻿using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using BrightIdeasSoftware;
 
 namespace SHGuestsEFCore.Called_Dialogs
 {
@@ -32,6 +32,8 @@ namespace SHGuestsEFCore.Called_Dialogs
 
         #endregion Public Variables
 
+        #region Constructor
+
         public PivotTable_Reports ( DataTable table_in, DataTableReader reader_in )
         {
             //************************************************************************************
@@ -41,6 +43,8 @@ namespace SHGuestsEFCore.Called_Dialogs
             tmp_table = table_in;
             InitializeComponent ( );
         }
+
+        #endregion Constructor
 
         #region Form Loading
 

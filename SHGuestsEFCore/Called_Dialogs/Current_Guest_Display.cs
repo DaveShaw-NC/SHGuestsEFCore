@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -15,6 +13,8 @@ namespace SHGuestsEFCore.Called_Dialogs
 {
     public partial class Current_Guest_Display : Form
     {
+        #region Variables and Constants
+
         public MemoryStream ms;
         public byte [ ] error_Image;
         public string rosteri;
@@ -25,11 +25,16 @@ namespace SHGuestsEFCore.Called_Dialogs
         public string lname, fname, key_lname, denial_reason, admit_reason, connStr,
                      str_ssn, l_name, f_name, gender,
                      birthday, lst_date, referring_hospital, refer_sw;
+
         public Font do_font = new Font ( "Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Pixel );
         public Font adFont = new Font ( "Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point );
         public Guests update_record = new Guests ( );
         public Visits vd, foundvd;
         public object [ ] guestkey;
+
+        #endregion Variables and Constants
+
+        #region Constructor and Form Loading
 
         public Current_Guest_Display ( int GuestId, int VisitNum, string header_Text )
         {
@@ -60,8 +65,8 @@ namespace SHGuestsEFCore.Called_Dialogs
                 update_record = db.Guests                       // Find a specific record using Primary Key Values
                                .Include ( g => g.VisitsNavigation )
                                .Include ( g => g.Photos )
-                               .Where(g => g.GuestId == GiD)
-                               .Single();
+                               .Where ( g => g.GuestId == GiD )
+                               .Single ( );
                 if (update_record != null)
                 {
                     build_the_display ( update_record );
@@ -76,6 +81,7 @@ namespace SHGuestsEFCore.Called_Dialogs
                 return;
             }
         }
+
         private void build_the_display ( Guests foundrec )
         {
             Func<DateTime, DateTime, int> myMethod = CalcDays;
@@ -129,7 +135,6 @@ namespace SHGuestsEFCore.Called_Dialogs
 
             lst_vis_plus1 = DateTime.Now.AddDays ( 1 );
             TimeSpan visit_length = lst_vis_plus1 - vd.AdmitDate;
-            //days_here_label.Text = $"{visit_length.Days} guest day(s)";
             int visit_length_Days = myMethod ( DateTime.Today, admit_date_no_time );
             days_here_label.Text = $"{visit_length_Days:N0} guest days";
             days_here_label.Font = adFont;
@@ -180,12 +185,16 @@ namespace SHGuestsEFCore.Called_Dialogs
             return false;
         }
 
-        void Exit_display_buttonClick ( object sender, EventArgs e )
+        #endregion Constructor and Form Loading
+
+        #region Event(Button) Handlers
+
+        private void Exit_display_buttonClick ( object sender, EventArgs e )
         {
             Close ( );
         }
 
-        void Discharge_guest_buttonClick ( object sender, EventArgs e )
+        private void Discharge_guest_buttonClick ( object sender, EventArgs e )
         {
             Guests dcharge_Guest = new Guests ( );
             var db = new DataModel.SHGuests ( );
@@ -208,7 +217,7 @@ namespace SHGuestsEFCore.Called_Dialogs
             Close ( );
         }
 
-        void Update_guest_buttonClick ( object sender, EventArgs e )
+        private void Update_guest_buttonClick ( object sender, EventArgs e )
         {
             StringBuilder sb = new StringBuilder ( );
             vd = new Visits ( );
@@ -306,6 +315,8 @@ namespace SHGuestsEFCore.Called_Dialogs
             return;
         }
 
+        #endregion Event(Button) Handlers
+
         #region My Functions for LINQ
 
         public int CalcDays ( DateTime from, DateTime to )
@@ -317,6 +328,7 @@ namespace SHGuestsEFCore.Called_Dialogs
 
         #endregion My Functions for LINQ
 
+        #region Private Functions
 
         private void edit_ssn_textbox ( object sender, EventArgs e )
         {
@@ -337,10 +349,10 @@ namespace SHGuestsEFCore.Called_Dialogs
                 this.ActiveControl = ssn_id_no_box;
                 return;
             }
-
         }
+
         //Open file in to a filestream and read data in a byte array.
-        byte [ ] ReadFile ( string sPath )
+        private byte [ ] ReadFile ( string sPath )
         {
             //Initialize byte array with a null value initially.
             byte [ ] data = null;
@@ -355,13 +367,15 @@ namespace SHGuestsEFCore.Called_Dialogs
             //Use BinaryReader to read file stream into byte array.
             BinaryReader br = new BinaryReader ( fStream );
 
-            //When you use BinaryReader, you need to supply number of bytes 
+            //When you use BinaryReader, you need to supply number of bytes
             //to read from file.
-            //In this case we want to read entire file. 
+            //In this case we want to read entire file.
             //So supplying total number of bytes.
             data = br.ReadBytes ( ( int )numBytes );
 
             return data;
         }
+
+        #endregion Private Functions
     }
 }
