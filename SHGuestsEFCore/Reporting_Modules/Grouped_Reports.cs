@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Windows.Forms;
+using SHGuestsEFCore.Called_Dialogs;
 
 namespace SHGuestsEFCore.Reporting_Modules
 {
@@ -10,11 +12,13 @@ namespace SHGuestsEFCore.Reporting_Modules
         #region Variables and Constants
 
         public DataTable grpTable;
+        public Report_Results rpt_dlg;
+        public int num_rows = 0;
         public int totalbeddays = 0, returned_days = 0, agencytotal = 0, totagency = 0;
         public List<Things> things, newThings;
         public bool haveprevyear = false, haveprevprevyear = false;
         public static string title = "Bed day Totals";
-        public string saveRoster, saveGender;
+        public string saveRoster, saveGender, report_Title= string.Empty;
         public decimal total_savings = 0, gt_savings = 0;
         public int? saveVisitNumber;
         public int genderCount = -1;
@@ -75,6 +79,8 @@ namespace SHGuestsEFCore.Reporting_Modules
             }
 
             BuildTotalsDisplay ( );
+            report_Title = $"Samaritan House Bed Days Statistics as of: {DateTime.Today:D}";
+            ShowReport ( grpTable, report_Title, false );
             return grpTable;
         }
 
@@ -308,6 +314,8 @@ namespace SHGuestsEFCore.Reporting_Modules
                 {
                     grpTable.Rows.Add ( item.Roster, item.Visit, item.Guests, item.BedDays, item.Minimum, item.Maximum, item.Average );
                 }
+                report_Title = $"Samaritan House Bed Days Statistics as of: {DateTime.Today:D}";
+                ShowReport ( grpTable, report_Title, false );
                 return grpTable;
             }
         }
@@ -324,5 +332,30 @@ namespace SHGuestsEFCore.Reporting_Modules
         }
 
         #endregion My Functions for LINQ
+
+        #region Report the Results
+
+        private void ShowReport ( DataTable theList, string title, bool rpt_type )
+        {
+            rpt_dlg = new Report_Results ( theList, rpt_type );
+            try
+            {
+                num_rows = rpt_dlg.NumberofRows;
+                if (num_rows > 0)
+                {
+                    rpt_dlg.Text = title;
+                    rpt_dlg.ShowDialog ( );
+                    rpt_dlg.ResetFont ( );
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show ( "Error " + exc.Message );
+            }
+            return;
+        }
+
+        #endregion Report the Results
+
     }
 }

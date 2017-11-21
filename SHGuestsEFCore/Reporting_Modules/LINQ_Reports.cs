@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using SHGuestsEFCore.DataModel;
+using System.Windows.Forms;
+using SHGuestsEFCore.Called_Dialogs;
 
 namespace SHGuestsEFCore.Reporting_Modules
 {
@@ -14,6 +12,13 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable dataTable;
         public static char [ ] _defaulttrim = new char [ ] { ' ', '\t', '\r', '\n' };
         public static DateTime ParkRoadCutOffDate = new DateTime ( 2011, 06, 05 );
+        public string report_Title = string.Empty;
+        public Report_Results rpt_dlg;
+        public int num_rows = 0;
+
+        public LINQ_Reports ( )
+        {
+        }
 
         public DataTable Roster_Report ( )
         {
@@ -54,9 +59,12 @@ namespace SHGuestsEFCore.Reporting_Modules
                 {
                     dataTable.Rows.Add ( rr.Admitted, rr.Name, rr.Gender, rr.Reason, rr.AgencyWorker, rr.Days, rr.Visit );
                 }
+                report_Title = $"Samaritan House Current Guest List: {dataTable.Rows.Count:N0} records as of: {DateTime.Today:D}";
+                ShowReport ( dataTable, report_Title, false );
                 return dataTable;
             }
         }
+
         public DataTable LongCurrentsReport ( )
         {
             dataTable = new DataTable ( "LongStays" );
@@ -68,7 +76,7 @@ namespace SHGuestsEFCore.Reporting_Modules
                 var roster = ( from jd in db.Guests
                                join vd in db.Visits
                                on jd.GuestId equals vd.GuestId
-                               let bdays = myMethod(to_Date, vd.AdmitDate)
+                               let bdays = myMethod ( to_Date, vd.AdmitDate )
                                orderby vd.AdmitDate, jd.LastName, jd.FirstName
                                where vd.Roster == "C" && bdays > 44
                                select new
@@ -87,15 +95,17 @@ namespace SHGuestsEFCore.Reporting_Modules
                 dataTable.Columns.Add ( "Admit Reason", typeof ( string ) );
                 dataTable.Columns.Add ( "Hospital", typeof ( string ) );
 
-                foreach( var i in roster)
+                foreach (var i in roster)
                 {
                     dataTable.Rows.Add ( i.Name, i.Gender, i.InDate, i.Days, i.Reason, i.Agency );
                 }
+                report_Title = $"Samaritan House Guest with > 45 Days: {dataTable.Rows.Count:N0} records as of: {DateTime.Today:D}";
+                ShowReport ( dataTable, report_Title, false );
                 return dataTable;
             }
         }
 
-        public DataTable QuestionableData()
+        public DataTable QuestionableData ( )
         {
             dataTable = new DataTable ( "HuhData" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
@@ -106,7 +116,7 @@ namespace SHGuestsEFCore.Reporting_Modules
                                join vd in db.Visits
                                on jd.GuestId equals vd.GuestId
                                where ( ( vd.Worker.Contains ( "No file" ) || vd.Worker.Contains ( "Signature Ill" ) ) ||
-                                      ( jd.Ssn == 999999999 || jd.BirthDate == new DateTime(1980, 01, 01) )
+                                      ( jd.Ssn == 999999999 || jd.BirthDate == new DateTime ( 1980, 01, 01 ) )
                                       && vd.Roster == "D" )
                                orderby jd.LastName, jd.FirstName, vd.VisitNumber
                                select new
@@ -133,6 +143,8 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( i.Name, i.BirthDate, i.SSNorW7, i.InDate, i.OutDate, i.Days, i.Agency_Worker );
                 }
             }
+            report_Title = $"Samaritan House Guests with Questionable Information: {dataTable.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
@@ -170,10 +182,12 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( i.Name, i.InDate, i.OutDate, i.Days, i.OutReason, i.Agency_Worker );
                 }
             }
+            report_Title = $"Samaritan House Guests Ineligible for Return: {dataTable.Rows.Count:N0} records as of: {DateTime.Today:D}";
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
-        public DataTable DeceasedGuests()
+        public DataTable DeceasedGuests ( )
         {
             dataTable = new DataTable ( "Deceased" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
@@ -207,14 +221,17 @@ namespace SHGuestsEFCore.Reporting_Modules
                 }
             }
 
+            report_Title = $"Samaritan House  - {dataTable.Rows.Count:N0} Former Guests Listed as Deceased As of: {DateTime.Today:D}"; 
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
-        public DataTable CompleteGuestList()
+        public DataTable CompleteGuestList ( )
         {
             dataTable = new DataTable ( "Guest List" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
             DateTime to_Date = DateTime.Today;
+            int guest_count = 0;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = ( from nc in db.Guests
@@ -246,11 +263,14 @@ namespace SHGuestsEFCore.Reporting_Modules
                 {
                     dataTable.Rows.Add ( i.Name, i.Visit, i.Admitted, i.Discharged, i.Days, i.DischargeReason, i.Return );
                 }
+                guest_count = db.Visits.Count ( nl => nl.VisitNumber == 1 );
             }
+            report_Title = $"Fortune Street Discharged Guest Listing of {guest_count:N0} Guests As of: {DateTime.Today:D}"; 
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
-        public DataTable RoomAssignments()
+        public DataTable RoomAssignments ( )
         {
             dataTable = new DataTable ( "Guest List" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
@@ -287,10 +307,12 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( i.Room, i.Bed, i.Name, i.Gender, i.InDate, i.Days, i.Reason, i.Agency );
                 }
             }
+            report_Title = $"Samaritan House Current Guest Room Assignments As of: {DateTime.Today:D}";
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
-        public DataTable SocialWorkerGuestList()
+        public DataTable SocialWorkerGuestList ( )
         {
             dataTable = new DataTable ( "Social Worker Guest List" );
             Func<DateTime, DateTime, int> myMethod = CalcDays;
@@ -331,7 +353,7 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( item.Worker, item.Agency, item.InDate, item.OutDate, item.Name, item.AdmitReason, item.Days, item.Return );
                 }
             }
-                return dataTable;
+            return dataTable;
         }
 
         public DataTable NoShowsReport ( )
@@ -367,6 +389,8 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( i.Name, i.InDate, i.OutDate, i.Days, i.AdmitReason, i.DischargeReason );
                 }
             }
+            report_Title = $"Samaritan House Hospital No Show List ({dataTable.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; 
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
 
@@ -405,8 +429,35 @@ namespace SHGuestsEFCore.Reporting_Modules
                     dataTable.Rows.Add ( i.Name, i.InDate, i.OutDate, i.Days, i.AdmitReason, i.DischargeReason );
                 }
             }
+            report_Title = $"Samaritan House Walk-Offs List ({dataTable.Rows.Count:N0} Records) As of: {DateTime.Today:D}";
+            ShowReport ( dataTable, report_Title, false );
             return dataTable;
         }
+
+        #region Report the Results
+
+        private void ShowReport ( DataTable theList, string title, bool rpt_type )
+        {
+            rpt_dlg = new Report_Results ( theList, rpt_type );
+            try
+            {
+                num_rows = rpt_dlg.NumberofRows;
+                if (num_rows > 0)
+                {
+                    rpt_dlg.Text = title;
+                    rpt_dlg.ShowDialog ( );
+                    rpt_dlg.ResetFont ( );
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show ( "Error " + exc.Message );
+            }
+            return;
+        }
+
+        #endregion Report the Results
+
         #region My Functions for LINQ
 
         public int CalcDays ( DateTime from, DateTime to )

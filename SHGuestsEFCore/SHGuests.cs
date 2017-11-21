@@ -161,7 +161,8 @@ namespace SHGuestsEFCore
             int totalguests = main_List.Count ( );
             int totalvisits = db.Visits.Count ( );
             int singlevisits = db.Visits.Where ( v => v.VisitNumber == 1 ).Count ( );
-            int multivisits = db.Visits.Where ( g => g.VisitNumber > 1 ).Where ( g => g.Roster.Equals ( "D" ) ).Count ( );
+            //int multivisits = db.Visits.Where ( g => g.VisitNumber > 1 ).Where ( g => g.Roster.Equals ( "D" ) ).Count ( );
+            int multivisits = totalvisits - totalguests;
             int parkrdvisits = db.Visits.Count ( v => v.Discharged <= ParkRoadCutOffDate );
             int no_returns = db.Visits.Count ( v => !v.CanReturn && !v.Deceased && !v.DischargeReason.Contains ( "No Show" ) );
             int fortunestreetVisits = ( dischcount - no_returns );
@@ -342,10 +343,9 @@ namespace SHGuestsEFCore
         {
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
+            Hide ( );
             dt = lr.Roster_Report ( );
-            string query_title = $"Samaritan House Current Guest List: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -354,10 +354,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.LongCurrentsReport ( );
-            string query_title = $"Samaritan House Guest with > 45 Days: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -366,10 +365,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.QuestionableData ( );
-            string query_title = $"Samaritan House Guests with Questionable Information: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -378,10 +376,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.Ineligibles ( );
-            string query_title = $"Samaritan House Guests Ineligible for Return: {dt.Rows.Count:N0} records as of: {DateTime.Today:D}";
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -391,11 +388,9 @@ namespace SHGuestsEFCore
             DataTable dt = new DataTable ( );
             var db = new DataModel.SHGuests ( );
 
+            Hide ( );
             dt = lr.CompleteGuestList ( );
-            int guest_count = db.Visits.Count ( nl => nl.VisitNumber == 1 );
-            string query_title = $"Fortune Street Discharged Guest Listing of {guest_count:N0} Guests As of: {DateTime.Today:D}"; ;
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -405,10 +400,9 @@ namespace SHGuestsEFCore
             DataTable dt = new DataTable ( );
             var db = new DataModel.SHGuests ( );
 
+            Hide ( );
             dt = lr.RoomAssignments ( );
-            string query_title = $"Samaritan House Current Guest Room Assignments As of: {DateTime.Today:D}"; ;
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -417,10 +411,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.DeceasedGuests ( );
-            string query_title = $"Samaritan House  - {dt.Rows.Count:N0} Former Guests Listed as Deceased As of: {DateTime.Today:D}"; ;
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -429,10 +422,9 @@ namespace SHGuestsEFCore
             gr = new Grouped_Reports ( );
             DataTable grp = new DataTable ( );
 
+            Hide ( );
             grp = gr.TotalVisitsStatistics ( );
-            string query_title = $"Samaritan House Bed Days Statistics as of: {DateTime.Today:D}";
-            statistical_report = false;
-            ViewReport ( grp, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -441,10 +433,9 @@ namespace SHGuestsEFCore
             gr = new Grouped_Reports ( );
             DataTable grp = new DataTable ( );
 
+            Hide ( );
             grp = gr.TotalVisitsbyGenderandVisists ( );
-            string query_title = $"Samaritan House Bed Days Statistics as of: {DateTime.Today:D}";
-            statistical_report = true;
-            ViewReport ( grp, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -475,10 +466,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.NoShowsReport ( );
-            string query_title = $"Samaritan House Hospital No Show List ({dt.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; ;
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -487,10 +477,9 @@ namespace SHGuestsEFCore
             LINQ_Reports lr = new LINQ_Reports ( );
             DataTable dt = new DataTable ( );
 
+            Hide ( );
             dt = lr.WalkOffsReport ( );
-            string query_title = $"Samaritan House Walk-Offs List ({dt.Rows.Count:N0} Records) As of: {DateTime.Today:D}"; ;
-            statistical_report = false;
-            ViewReport ( dt, query_title, statistical_report );
+            Show ( );
             return;
         }
 
@@ -587,27 +576,27 @@ namespace SHGuestsEFCore
 
         #region Results Reporting
 
-        private void ViewReport ( DataTable theList, string title, bool rpt_type )
-        {
-            rpt_dlg = new Report_Results ( theList, rpt_type );
-            try
-            {
-                Hide ( );
-                num_rows = rpt_dlg.NumberofRows;
-                if (num_rows > 0)
-                {
-                    rpt_dlg.Text = title;
-                    rpt_dlg.ShowDialog ( );
-                    rpt_dlg.ResetFont ( );
-                }
-                Show ( );
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show ( "Error " + exc.Message );
-            }
-            return;
-        }
+        //private void ViewReport ( DataTable theList, string title, bool rpt_type )
+        //{
+        //    rpt_dlg = new Report_Results ( theList, rpt_type );
+        //    try
+        //    {
+        //        Hide ( );
+        //        num_rows = rpt_dlg.NumberofRows;
+        //        if (num_rows > 0)
+        //        {
+        //            rpt_dlg.Text = title;
+        //            rpt_dlg.ShowDialog ( );
+        //            rpt_dlg.ResetFont ( );
+        //        }
+        //        Show ( );
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        MessageBox.Show ( "Error " + exc.Message );
+        //    }
+        //    return;
+        //}
 
         #endregion Results Reporting
 
