@@ -175,7 +175,7 @@ namespace SHGuestsEFCore
             label_NoReturnCount.Text = $"{no_returns,8:N0} Guests Ineligible to Return";
             label_FortuneStreetGuests.Text = $"{fortunestreetVisits,8:N0} Eligible to Return Guest Count";
             label_ParkRoadGuests.Text = $"{comboBox_Ineligible.Items.Count,9:N0} Ineligible Guest Count";
-            label_cboxtot_discharged.Text = $"{( fortunestreetVisits + comboBox_Ineligible.Items.Count ),8:N0} Total";
+            label_cboxtot_discharged.Text = $"{( fortunestreetVisits + comboBox_Ineligible.Items.Count ),8:N0} Total Discharged Guests";
             var databasename = db.Database.GetDbConnection ( ).Database;
             Version myver = new Version ( );
             myver = typeof ( SHGuests ).Assembly.GetName ( ).Version;
