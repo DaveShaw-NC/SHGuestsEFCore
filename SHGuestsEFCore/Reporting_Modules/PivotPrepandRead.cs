@@ -12,12 +12,16 @@ namespace SHGuestsEFCore.Reporting_Modules
         public SqlDataAdapter dataAdapter;
         public SHGuests.pivot_rpt_type rpt_Type;
 
+        public PivotPrepandRead ( )
+        {
+            connect = new SqlConnection ( Properties.Settings.Default.Production_Connect );
+        }
+
         public DataTableReader PivotPrep ( ref string sqlText, out DataTable dataTable,
                                            SHGuests.pivot_rpt_type rpt_Type, bool refersw, ref string rpt_Title)
         {
             dataTable = new DataTable ( "SqlPivot Report" );
             DataTableReader dataTableReader;
-            connect = new SqlConnection ( Properties.Settings.Default.Production_Connect );
             if (connect.State != ConnectionState.Open)
             {
                 connect.Open ( );

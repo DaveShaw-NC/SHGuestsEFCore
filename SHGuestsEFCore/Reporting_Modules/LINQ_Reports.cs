@@ -11,10 +11,11 @@ namespace SHGuestsEFCore.Reporting_Modules
     {
         public DataTable dataTable;
         public static char [ ] _defaulttrim = new char [ ] { ' ', '\t', '\r', '\n' };
-        public static DateTime ParkRoadCutOffDate = new DateTime ( 2011, 06, 05 );
+        public DateTime ParkRoadCutOffDate = new DateTime ( 2011, 06, 05 ), to_Date = DateTime.Today;
         public string report_Title = string.Empty;
         public Report_Results rpt_dlg;
         public int num_rows = 0;
+        public static Func<DateTime, DateTime, int> myMethod = CalcDays;
 
         public LINQ_Reports ( )
         {
@@ -23,8 +24,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable Roster_Report ( )
         {
             dataTable = new DataTable ( "Roster" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             string [ ] colHeadings = new string [ ]
             {
                 "Admitted", "Name", "Gender", "Reason", "Agency (Worker)", "Bed Days", "Visit"
@@ -68,8 +67,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable LongCurrentsReport ( )
         {
             dataTable = new DataTable ( "LongStays" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
 
             using (var db = new DataModel.SHGuests ( ))
             {
@@ -108,8 +105,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable QuestionableData ( )
         {
             dataTable = new DataTable ( "HuhData" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = ( from jd in db.Guests
@@ -151,8 +146,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable Ineligibles ( )
         {
             dataTable = new DataTable ( "Ineligibles" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = ( from jd in db.Guests
@@ -190,8 +183,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable DeceasedGuests ( )
         {
             dataTable = new DataTable ( "Deceased" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = from jd in db.Guests
@@ -229,8 +220,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable CompleteGuestList ( )
         {
             dataTable = new DataTable ( "Guest List" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             int guest_count = 0;
             using (var db = new DataModel.SHGuests ( ))
             {
@@ -273,8 +262,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable RoomAssignments ( )
         {
             dataTable = new DataTable ( "Guest List" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = ( from jd in db.Guests
@@ -315,8 +302,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable SocialWorkerGuestList ( )
         {
             dataTable = new DataTable ( "Social Worker Guest List" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             string [ ] colHeadings = new string [ ]
             {
                 "Worker", "Agency", "Admit", "Discharge", "Name", "Admit Reason", "Days", "Ret"
@@ -359,8 +344,6 @@ namespace SHGuestsEFCore.Reporting_Modules
         public DataTable NoShowsReport ( )
         {
             dataTable = new DataTable ( "No Shows" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = from jd in db.Guests
@@ -396,9 +379,7 @@ namespace SHGuestsEFCore.Reporting_Modules
 
         public DataTable WalkOffsReport ( )
         {
-            dataTable = new DataTable ( "No SHows" );
-            Func<DateTime, DateTime, int> myMethod = CalcDays;
-            DateTime to_Date = DateTime.Today;
+            dataTable = new DataTable ( "No Shows" );
             using (var db = new DataModel.SHGuests ( ))
             {
                 var roster = ( from jd in db.Guests
@@ -434,6 +415,47 @@ namespace SHGuestsEFCore.Reporting_Modules
             return dataTable;
         }
 
+        public DataTable MultipleVisitsReport ( )
+        {
+            dataTable = new DataTable ( "MultiVisits" );
+            int multiv = 0;
+            using (var db = new DataModel.SHGuests ( ))
+            {
+                var roster = ( from jd in db.Guests
+                               join vd in db.Visits
+                               on jd.GuestId equals vd.GuestId
+                               orderby jd.LastName, jd.FirstName
+                               where jd.Visits > 1
+                               select new
+                               {
+                                   Name = string.Concat ( jd.LastName, ", ", jd.FirstName ),
+                                   Visit = vd.VisitNumber,
+                                   InDate = vd.AdmitDate,
+                                   OutDate = vd.Discharged,
+                                   Days = ( vd.Roster.Equals ( "D" ) ) ? vd.VisitDays : myMethod ( to_Date, vd.AdmitDate ),
+                                   AdmitReason = vd.AdmitReason,
+                                   DischargeReason = vd.DischargeReason
+                               } ).ToList ( );
+
+                dataTable.Columns.Add ( "Name", typeof ( string ) );
+                dataTable.Columns.Add ( "Visit", typeof (int ) );
+                dataTable.Columns.Add ( "Admitted", typeof ( DateTime ) );
+                dataTable.Columns.Add ( "Discharged", typeof ( DateTime ) );
+                dataTable.Columns.Add ( "Days", typeof ( int ) );
+                dataTable.Columns.Add ( "Admit Reason", typeof ( string ) );
+                dataTable.Columns.Add ( "Discharge Reason", typeof ( string ) );
+
+                foreach (var i in roster)
+                {
+                    dataTable.Rows.Add ( i.Name, i.Visit, i.InDate, i.OutDate, i.Days, i.AdmitReason, i.DischargeReason );
+                }
+                multiv = ( db.Visits.Count ( ) - db.Guests.Count ( ) );
+           }
+            report_Title = $"Samaritan House Multiple Visit Guest List ({multiv:N0} Guests) As of: {DateTime.Today:D}";
+            ShowReport ( dataTable, report_Title, false );
+            return dataTable;
+        }
+
         #region Report the Results
 
         private void ShowReport ( DataTable theList, string title, bool rpt_type )
@@ -460,7 +482,7 @@ namespace SHGuestsEFCore.Reporting_Modules
 
         #region My Functions for LINQ
 
-        public int CalcDays ( DateTime from, DateTime to )
+        public static int CalcDays ( DateTime from, DateTime to )
         {
             TimeSpan ts = new TimeSpan ( 0, 0, 0 );
             ts = from.AddDays ( 1 ) - to;

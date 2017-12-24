@@ -483,6 +483,17 @@ namespace SHGuestsEFCore
             return;
         }
 
+        private void multipleVisitGuestToolStripMenuItem_Click ( object sender, EventArgs e )
+        {
+            LINQ_Reports lr = new LINQ_Reports ( );
+            DataTable dt = new DataTable ( );
+
+            Hide ( );
+            dt = lr.MultipleVisitsReport ( );
+            Show ( );
+            return;
+        }
+
         #endregion LINQ Reporting
 
         #region SQL Pivot Reporting (Native SQL Queries)

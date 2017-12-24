@@ -81,6 +81,7 @@
             this.comboBox_Ineligible = new System.Windows.Forms.ComboBox();
             this.label_ParkRoadGuests = new System.Windows.Forms.Label();
             this.label_cboxtot_discharged = new System.Windows.Forms.Label();
+            this.multipleVisitGuestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_SHLogo)).BeginInit();
             this.menuStrip_MainMenu.SuspendLayout();
             this.statusStrip_mainStatusStrip.SuspendLayout();
@@ -201,7 +202,8 @@
             this.toolStripSeparator6,
             this.inelegibleForReturnToSamaritanHouseToolStripMenuItem,
             this.hospitalNoShowsToolStripMenuItem,
-            this.guestWalkOffsToolStripMenuItem});
+            this.guestWalkOffsToolStripMenuItem,
+            this.multipleVisitGuestToolStripMenuItem});
             this.formerGuestsToolStripMenuItem.Name = "formerGuestsToolStripMenuItem";
             this.formerGuestsToolStripMenuItem.Size = new System.Drawing.Size(115, 24);
             this.formerGuestsToolStripMenuItem.Text = "Former Guests";
@@ -511,13 +513,13 @@
             this.comboBox_Ineligible.Size = new System.Drawing.Size(388, 26);
             this.comboBox_Ineligible.TabIndex = 17;
             this.comboBox_Ineligible.SelectedIndexChanged += new System.EventHandler(this.combobox_Ineligible_SelectedIndexChanged);
-            // combobox_Ineligible_SelectedIndexChanged
+            // 
             // label_ParkRoadGuests
             // 
             this.label_ParkRoadGuests.AutoSize = true;
             this.label_ParkRoadGuests.Location = new System.Drawing.Point(501, 210);
             this.label_ParkRoadGuests.Name = "label_ParkRoadGuests";
-            this.label_ParkRoadGuests.Size = new System.Drawing.Size(131, 18);
+            this.label_ParkRoadGuests.Size = new System.Drawing.Size(71, 18);
             this.label_ParkRoadGuests.TabIndex = 18;
             this.label_ParkRoadGuests.Text = "Ineligibles";
             // 
@@ -529,6 +531,13 @@
             this.label_cboxtot_discharged.Size = new System.Drawing.Size(65, 18);
             this.label_cboxtot_discharged.TabIndex = 19;
             this.label_cboxtot_discharged.Text = "sometex";
+            // 
+            // multipleVisitGuestToolStripMenuItem
+            // 
+            this.multipleVisitGuestToolStripMenuItem.Name = "multipleVisitGuestToolStripMenuItem";
+            this.multipleVisitGuestToolStripMenuItem.Size = new System.Drawing.Size(351, 26);
+            this.multipleVisitGuestToolStripMenuItem.Text = "Multiple Visit Guests";
+            this.multipleVisitGuestToolStripMenuItem.Click += new System.EventHandler(this.multipleVisitGuestToolStripMenuItem_Click);
             // 
             // SHGuests
             // 
@@ -628,6 +637,7 @@
         private System.Windows.Forms.ComboBox comboBox_Ineligible;
         private System.Windows.Forms.Label label_ParkRoadGuests;
         private System.Windows.Forms.Label label_cboxtot_discharged;
+        private System.Windows.Forms.ToolStripMenuItem multipleVisitGuestToolStripMenuItem;
     }
 }
 
