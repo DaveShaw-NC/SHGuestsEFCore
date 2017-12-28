@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -66,10 +67,13 @@ namespace SHGuestsEFCore.Called_Dialogs
             }
             vd.Deceased = deceased_checkbox.Checked;
             vd.CanReturn = canreturn_checkBox.Checked;
-            if (( ssn_id_no_box.Text.Length < 9 ) && ( ssn_id_no_box.Text.Contains ( "N/A" ) ))
+
+            str_ssn = ssn_id_no_box.Text.ToUpper ( );
+            if (str_ssn.Contains ( "N/A" ) || ( !ValidateSSN ( str_ssn ) ))
             {
-                MessageBox.Show ( "Incorrect information in field. Please try again" );
+                MessageBox.Show ( "SSN/W7 " + str_ssn + " is invalid. SSN/W7 must be valid." );
                 this.ActiveControl = ssn_id_no_box;
+                ssn_id_no_box.Focus ( );
                 return;
             }
 
@@ -129,5 +133,11 @@ namespace SHGuestsEFCore.Called_Dialogs
         }
 
         #endregion Event(Button) Handlers
+
+        private static bool ValidateSSN ( string ssn_string )
+        {
+            return new Regex ( @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0{4})\d{4}$" ).IsMatch ( ssn_string );
+        }
+
     }
 }

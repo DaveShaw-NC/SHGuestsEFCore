@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonRoutines;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace SHGuestsEFCore.Reporting_Modules
         public Report_Results rpt_dlg;
         public int num_rows = 0;
         public static Func<DateTime, DateTime, int> myMethod = CalcDays;
+        public Commons cr = new Commons ( );
 
         public LINQ_Reports ( )
         {
@@ -110,8 +112,10 @@ namespace SHGuestsEFCore.Reporting_Modules
                 var roster = ( from jd in db.Guests
                                join vd in db.Visits
                                on jd.GuestId equals vd.GuestId
+                               let ssnbool = cr.RegValidateSSN ( jd.Ssn.ToString ( "000-00-0000" ) )
+                               let invalidbd = ( jd.BirthDate == new DateTime ( 1980, 01, 01 ) )
                                where ( ( vd.Worker.Contains ( "No file" ) || vd.Worker.Contains ( "Signature Ill" ) ) ||
-                                      ( jd.Ssn == 999999999 || jd.BirthDate == new DateTime ( 1980, 01, 01 ) )
+                                      ( !ssnbool || invalidbd )
                                       && vd.Roster == "D" )
                                orderby jd.LastName, jd.FirstName, vd.VisitNumber
                                select new

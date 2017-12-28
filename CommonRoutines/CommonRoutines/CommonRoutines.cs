@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace CommonRoutines
@@ -135,6 +136,23 @@ namespace CommonRoutines
         }
 
         #endregion My Functions for LINQ
+
+        #region SSN Validation Routines
+
+        public bool ValidateSSN ( in string ssn_string )
+        {
+            Regex regex = new Regex ( @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0{4})\d{4}$" );
+            return regex.IsMatch ( ssn_string );
+        }
+
+        public bool RegValidateSSN ( in string ssn_string )
+        {
+            Regex regex = new Regex ( @"^(?!219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0{4})\d{4}$" );
+            return regex.IsMatch ( ssn_string );
+        }
+
+        #endregion
+
     }
 
     #region Class for DataGridView Layout parameters

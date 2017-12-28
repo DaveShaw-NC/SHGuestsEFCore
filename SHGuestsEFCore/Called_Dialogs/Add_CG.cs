@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
 using SHGuestsEFCore.DataModel;
@@ -190,7 +191,7 @@ namespace SHGuestsEFCore.Called_Dialogs
                     return;
                 }
                 str_ssn = ssn_id_box.Text.ToUpper ( );
-                if (str_ssn.Contains ( "N/A" ))
+                if (str_ssn.Contains ( "N/A" ) || ( !ValidateSSN ( str_ssn ) ))
                 {
                     MessageBox.Show ( "SSN/W7 " + str_ssn + " is invalid. SSN/W7 must be valid." );
                     this.ActiveControl = ssn_id_box;
@@ -205,7 +206,7 @@ namespace SHGuestsEFCore.Called_Dialogs
 
                 if (!int.TryParse ( str_ssn, out ssn_in ))
                 {
-                    MessageBox.Show ( "Incorrect information in field. Please try again" );
+                    MessageBox.Show ( "Invalid numerics in field. Please try again" );
                     this.ActiveControl = ssn_id_box;
                     ssn_id_box.Focus ( );
                     return;
@@ -309,6 +310,11 @@ namespace SHGuestsEFCore.Called_Dialogs
         #endregion Event(Button) Handlers
 
         #region Miscellaneous Routines
+
+        private static bool ValidateSSN ( string ssn_string )
+        {
+            return new Regex ( @"^(?!\b(\d)\1+-(\d)\1+-(\d)\1+\b)(?!123-45-6789|219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0{4})\d{4}$" ).IsMatch ( ssn_string );
+        }
 
         public int CalcDays ( DateTime from, DateTime to )
         {
