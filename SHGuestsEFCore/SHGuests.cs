@@ -182,8 +182,14 @@ namespace SHGuestsEFCore
             String [ ] cmd_line = Environment.GetCommandLineArgs ( );
             String cmd_ln = String.Join ( "", cmd_line );
             string filepath = Path.GetFileNameWithoutExtension ( cmd_ln );
+#if DEBUG
+            toolStripStatusLabel_statusLabel.Text = $"Program: {filepath} Version {myver.Major}.{myver.Minor}.{myver.MajorRevision}.{myver.MinorRevision} " +
+                                                    $"Database: {databasename} Debugging";
+#else
             toolStripStatusLabel_statusLabel.Text = $"Program: {filepath} Version {myver.Major}.{myver.Minor}.{myver.MajorRevision}.{myver.MinorRevision} " +
                                                     $"Database: {databasename}";
+#endif
+
             statusStrip_mainStatusStrip.BackColor = SystemColors.Control;
             statusStrip_mainStatusStrip.Update ( );
             statusStrip_mainStatusStrip.Show ( );
@@ -191,11 +197,11 @@ namespace SHGuestsEFCore
             return;
         }
 
-        #endregion Main Data Loading
+#endregion Main Data Loading
 
-        #region Event and Message Handlers
+#region Event and Message Handlers
 
-        #region Combobox Selected Items Processing
+#region Combobox Selected Items Processing
 
         private void comboBox_Currents_SelectedIndexChanged ( object sender, EventArgs e )
         {
@@ -275,14 +281,14 @@ namespace SHGuestsEFCore
             return;
         }
 
-        #endregion Combobox Selected Items Processing
+#endregion Combobox Selected Items Processing
 
         private void button_QuitApp_Click ( object sender, EventArgs e )
         {
             Application.Exit ( );
         }
 
-        #region Menu Items - Non-Reporting
+#region Menu Items - Non-Reporting
 
         private void aboutToolStripMenuItem_Click ( object sender, EventArgs e )
         {
@@ -335,9 +341,9 @@ namespace SHGuestsEFCore
             return;
         }
 
-        #endregion Menu Items - Non-Reporting
+#endregion Menu Items - Non-Reporting
 
-        #region LINQ Reporting
+#region LINQ Reporting
 
         private void rosterToolStripMenuItem_Click ( object sender, EventArgs e )
         {
@@ -494,9 +500,9 @@ namespace SHGuestsEFCore
             return;
         }
 
-        #endregion LINQ Reporting
+#endregion LINQ Reporting
 
-        #region SQL Pivot Reporting (Native SQL Queries)
+#region SQL Pivot Reporting (Native SQL Queries)
 
         private void monthlyAdmissionsToolStripMenuItem_Click ( object sender, EventArgs e )
         {
@@ -583,9 +589,9 @@ namespace SHGuestsEFCore
             return;
         }
 
-        #endregion SQL Pivot Reporting (Native SQL Queries)
+#endregion SQL Pivot Reporting (Native SQL Queries)
 
-        #region Results Reporting
+#region Results Reporting
 
         //private void ViewReport ( DataTable theList, string title, bool rpt_type )
         //{
@@ -609,11 +615,11 @@ namespace SHGuestsEFCore
         //    return;
         //}
 
-        #endregion Results Reporting
+#endregion Results Reporting
 
-        #endregion Event and Message Handlers
+#endregion Event and Message Handlers
 
-        #region My Functions for LINQ
+#region My Functions for LINQ
 
         public int CalcDays ( DateTime from, DateTime to )
         {
@@ -622,6 +628,6 @@ namespace SHGuestsEFCore
             return ts.Days;
         }
 
-        #endregion My Functions for LINQ
+#endregion My Functions for LINQ
     }
 }

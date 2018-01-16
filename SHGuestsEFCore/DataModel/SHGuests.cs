@@ -16,7 +16,12 @@ namespace SHGuestsEFCore.DataModel
             {
                 string pr_connect = Properties.Settings.Default.Production_Connect;
                 string connect = Properties.Settings.Default.ConnectionString;
+# if DEBUG
+
+                    optionsBuilder.UseSqlServer ( connect );
+#else
                 optionsBuilder.UseSqlServer ( pr_connect );
+#endif
             }
         }
 
