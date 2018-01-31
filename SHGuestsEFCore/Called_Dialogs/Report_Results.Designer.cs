@@ -30,6 +30,7 @@
         {
             this.quit_the_query_button = new System.Windows.Forms.Button();
             this.printtheDocumentButton = new System.Windows.Forms.Button();
+            this.button_toExcelFile = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // quit_the_query_button
@@ -54,6 +55,17 @@
             this.printtheDocumentButton.UseVisualStyleBackColor = true;
             this.printtheDocumentButton.Click += new System.EventHandler(this.printtheDocumentButton_Click);
             // 
+            // button_toExcelFile
+            // 
+            this.button_toExcelFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_toExcelFile.Location = new System.Drawing.Point(12, 575);
+            this.button_toExcelFile.Name = "button_toExcelFile";
+            this.button_toExcelFile.Size = new System.Drawing.Size(168, 37);
+            this.button_toExcelFile.TabIndex = 2;
+            this.button_toExcelFile.Text = "To Excel File";
+            this.button_toExcelFile.UseVisualStyleBackColor = true;
+            this.button_toExcelFile.Click += new System.EventHandler(this.button_toExcelFile_Click);
+            // 
             // Report_Results
             // 
             this.AcceptButton = this.quit_the_query_button;
@@ -61,6 +73,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.quit_the_query_button;
             this.ClientSize = new System.Drawing.Size(1376, 624);
+            this.Controls.Add(this.button_toExcelFile);
             this.Controls.Add(this.printtheDocumentButton);
             this.Controls.Add(this.quit_the_query_button);
             this.KeyPreview = true;
@@ -76,6 +89,7 @@
         }
         private System.Windows.Forms.Button quit_the_query_button;
         private System.Windows.Forms.Button printtheDocumentButton;
+        private System.Windows.Forms.Button button_toExcelFile;
     }
 }
 

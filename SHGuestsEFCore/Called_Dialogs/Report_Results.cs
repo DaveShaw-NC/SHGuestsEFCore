@@ -1,4 +1,5 @@
 ﻿using DataGridPrinter.DataGridPrinter;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommonRoutines;
 using SHGuestsEFCore.Reporting_Modules;
+using System.IO;
 
 namespace SHGuestsEFCore.Called_Dialogs
 {
@@ -26,10 +28,11 @@ namespace SHGuestsEFCore.Called_Dialogs
         public DataGridView results_view1;
         public DataTable dt, view_table = new DataTable ( ), disp_tab2 = new DataTable ( );
         public DataSet dts;
+        public DateTime to_Date = DateTime.Today;
         public DataRow my_rows;
         public DataView my_view;
         public DataTableReader dtr;
-        public string p_query = null, tableName = "Tables";
+        public string p_query = null, tableName = "Tables", filePath = string.Empty;
         public string [ ] cols_array;
         public int num_rows_returned = 0, num_cols_returned = 0;
 
@@ -141,7 +144,7 @@ namespace SHGuestsEFCore.Called_Dialogs
         #endregion Grid View Layout
 
         #region Event Handlers
-         
+
         #region Quit the Display
 
         private void Quit_the_query_buttonClick ( object sender, EventArgs e )
@@ -184,43 +187,122 @@ namespace SHGuestsEFCore.Called_Dialogs
             }
             return;
         }
-        //private void printtheDocumentButton_Click ( object sender, EventArgs e )
-        //{
-        //    DGVPrinter printer = new DGVPrinter ( );
-        //    printer.Title = this.Text;
-        //    printer.PageNumbers = true;
-        //    printer.PageNumberInHeader = false;
-        //    printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
-        //    printer.TitleFont = new Font ( "MS Sans Serif", 14F, FontStyle.Bold, GraphicsUnit.Point );
-        //    printer.TitleColor = Color.Blue;
-        //    printer.TitleBorder = new Pen ( Color.Black, 1.5F );
-        //    printer.TitleSpacing = 50F;
-        //    printer.SubTitle = string.Empty;
-        //    printer.SubTitleSpacing = 1.0F;
-        //    printer.FooterSpacing = 1.0F;
-        //    printer.FooterFont = printer.TitleFont;
-        //    printer.Footer = $"Copyright {DateTime.Today.Year.ToString ( )}, Samaritan House, Inc.";
-        //    printer.FooterSpacing = 50F;
-        //    printer.FooterAlignment = StringAlignment.Center;
-        //    printer.printDocument.DefaultPageSettings.Landscape = ( stat_rpt ) ? false : true;
-        //    //printer.printDocument.OriginAtMargins = true;
-        //    printer.KeepRowsTogether = true;
-        //    printer.KeepRowsTogetherTolerance = 50;
-        //    printer.PrintPreviewZoom = 0.75F;
-        //    printer.ColumnWidth = DGVPrinter.ColumnWidthSetting.Porportional;
-        //    printer.HeaderCellAlignment = StringAlignment.Near;
-        //    printer.printDocument.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins ( 10, 10, 20, 20 );
-        //    printer.TableAlignment = DGVPrinter.Alignment.NotSet;
 
-        //    if (DialogResult.OK == printer.DisplayPrintDialog ( ))
-        //    {
-        //        printer.PrintPreviewNoDisplay ( results_view1 );
-        //    }
-        //}
 
+        #endregion Printing Area
+
+        private void button_toExcelFile_Click ( object sender, EventArgs e )
+        {
+            DirectoryInfo di;
+            DialogResult svfres;
+            //string filePath = string.Empty;
+            try
+            {
+                SaveFileDialog fDialog = new SaveFileDialog ( );
+                fDialog.Filter = "Excel Workbook|*.xlsx|Excel (97-2003)|*.xls|Comma Separated Values|*.csv";
+                fDialog.Title = "Save exported file";
+                string initialdirectory = Environment.GetFolderPath ( Environment.SpecialFolder.MyDocuments ) + @"\Samaritan House SpreadSheets";
+                if (Directory.Exists ( initialdirectory ))
+                {
+                    di = new DirectoryInfo ( initialdirectory );
+                }
+                else
+                {
+                    di = Directory.CreateDirectory ( initialdirectory );
+                }
+                fDialog.InitialDirectory = di.FullName;
+                svfres = fDialog.ShowDialog ( );
+                if (svfres != DialogResult.OK)
+                {
+                    return;
+                }
+                BuildtheExcelfile ( fDialog.FileName );
+                MessageBox.Show ( $"Excel file {fDialog.FileName} successfully created", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return;
+        }
+        #region Build an Excel Workbook
+
+        public void BuildtheExcelfile ( string filePath )
+        {
+            FileInfo _finfo = new FileInfo ( filePath );
+            using (var package = new ExcelPackage ( ))
+            {
+                ExcelWorksheet wksht = package.Workbook.Worksheets.Add ( $"{this.Text}" );
+                BuildNoReturnsWorkSheet ( wksht );
+
+                package.Workbook.Properties.LastModifiedBy = Environment.UserName;
+                package.Workbook.Properties.Application = "SHGuests";
+                package.Workbook.Properties.Company = "Samaritan House, Inc.";
+                package.Workbook.Properties.Title = $"{this.Text}";
+                package.SaveAs ( _finfo );
+            }
+            return;
+        }
+        private void BuildNoReturnsWorkSheet ( ExcelWorksheet wksht )
+        {
+            wksht.Cells ["A1"].LoadFromDataTable ( dt, true );
+            wksht.Cells.Style.Font.Size = 9F;
+            wksht.Cells.Style.Font.Name = "Calibri";
+
+            using (var heading = wksht.Cells [1, 1, 1, dt.Columns.Count])
+            {
+                heading.Style.Font.Bold = true;
+                heading.Style.Font.Size = 10F;
+                heading.Style.Font.Name = "MS Sans Serif";
+                heading.Style.Font.Color.SetColor ( System.Drawing.Color.IndianRed );
+                heading.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.MediumGray;
+                heading.Style.Fill.BackgroundColor.SetColor ( System.Drawing.Color.Gray );
+                heading.Style.Border.BorderAround ( OfficeOpenXml.Style.ExcelBorderStyle.Medium );
+            }
+            IEnumerable<int> datecolumns = from DataColumn d in dt.Columns
+                                           where d.DataType == typeof ( DateTime )
+                                           select d.Ordinal + 1;
+            int rowcount = dt.Rows.Count;
+            foreach (int dc in datecolumns)
+            {
+                wksht.Cells [2, dc, rowcount + 1, dc].Style.Numberformat.Format = @"MM/dd/yyyy";
+                wksht.Cells [2, dc, rowcount + 1, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            IEnumerable<int> intcolumns = from DataColumn dc in dt.Columns
+                                          where dc.DataType == typeof ( int )
+                                          select dc.Ordinal + 1;
+            rowcount = wksht.Dimension.End.Row;
+            foreach (int dc in intcolumns)
+            {
+                wksht.Cells [2, dc, rowcount, dc].Style.Numberformat.Format = @"#,###";
+                wksht.Cells [2, dc, rowcount, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            }
+            //wksht.Cells [2, 1, rowcount, 1].Style.Font.Color.SetColor ( System.Drawing.Color.Red );
+            wksht.Cells [2, 1, rowcount, 1].Style.Font.Bold = true;
+
+            wksht.Cells.AutoFitColumns ( );
+            wksht.HeaderFooter.OddHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";
+            wksht.HeaderFooter.EvenHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";
+            wksht.HeaderFooter.OddFooter.CenteredText = $"&\"Arial\"&B&12&KFF0000 Copyright © {DateTime.Today.Year} Samaritan House Inc. All Rights Reserved.";
+            wksht.HeaderFooter.OddFooter.LeftAlignedText = $"{ExcelHeaderFooter.PageNumber} of {ExcelHeaderFooter.NumberOfPages}";
+            wksht.HeaderFooter.OddFooter.RightAlignedText = $"{ExcelHeaderFooter.CurrentDate} at {ExcelHeaderFooter.CurrentTime}";
+            wksht.HeaderFooter.EvenFooter.CenteredText = $"&\"Arial\"&B&12&KFF0000 Copyright © {DateTime.Today.Year} Samaritan House Inc. All Rights Reserved.";
+            wksht.HeaderFooter.EvenFooter.LeftAlignedText = $"{ExcelHeaderFooter.CurrentDate} at {ExcelHeaderFooter.CurrentTime}";
+            wksht.HeaderFooter.EvenFooter.RightAlignedText = $"{ExcelHeaderFooter.PageNumber} of {ExcelHeaderFooter.NumberOfPages}";
+            wksht.PrinterSettings.LeftMargin = 0.25M;
+            wksht.PrinterSettings.RightMargin = 0.25M;
+            wksht.PrinterSettings.TopMargin = 0.75M;
+            wksht.PrinterSettings.BottomMargin = 0.75M;
+            wksht.PrinterSettings.HeaderMargin = 0.3M;
+            wksht.PrinterSettings.FooterMargin = 0.3M;
+            wksht.PrinterSettings.Orientation = eOrientation.Landscape;
+            wksht.PrinterSettings.RepeatRows = new ExcelAddress ( $"1:1" );            //'{wksht.Name}'
+            wksht.PrinterSettings.ShowGridLines = true;
+            wksht.View.FreezePanes ( 2, dt.Columns.Count + 1 );
+            return;
+        }
+        #endregion
+        #endregion Event Handlers
     }
-
-    #endregion Printing Area
-
-    #endregion Event Handlers
 }
