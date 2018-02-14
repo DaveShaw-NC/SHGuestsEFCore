@@ -258,6 +258,7 @@ namespace SHGuestsEFCore.Called_Dialogs
                 heading.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.MediumGray;
                 heading.Style.Fill.BackgroundColor.SetColor ( System.Drawing.Color.Gray );
                 heading.Style.Border.BorderAround ( OfficeOpenXml.Style.ExcelBorderStyle.Medium );
+                heading.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
             IEnumerable<int> datecolumns = from DataColumn d in dt.Columns
                                            where d.DataType == typeof ( DateTime )
@@ -278,9 +279,16 @@ namespace SHGuestsEFCore.Called_Dialogs
                 wksht.Cells [2, dc, rowcount, dc].Style.Numberformat.Format = @"#,###";
                 wksht.Cells [2, dc, rowcount, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             }
-            //wksht.Cells [2, 1, rowcount, 1].Style.Font.Color.SetColor ( System.Drawing.Color.Red );
             wksht.Cells [2, 1, rowcount, 1].Style.Font.Bold = true;
-
+            IEnumerable<int> dblcolumns = from DataColumn dc in dt.Columns
+                                          where dc.DataType == typeof ( double )
+                                          select dc.Ordinal + 1;
+            rowcount = wksht.Dimension.End.Row;
+            foreach (int dc in dblcolumns)
+            {
+                wksht.Cells [2, dc, rowcount, dc].Style.Numberformat.Format = @"#,##0.00000";
+                wksht.Cells [2, dc, rowcount, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            }
             wksht.Cells.AutoFitColumns ( );
             wksht.HeaderFooter.OddHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";
             wksht.HeaderFooter.EvenHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";

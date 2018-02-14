@@ -30,6 +30,7 @@
             this.pivot_tbl_listview = new System.Windows.Forms.ListView();
             this.exit_report_Button = new System.Windows.Forms.Button();
             this.printtheViewButton = new System.Windows.Forms.Button();
+            this.button_createExcel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // pivot_tbl_listview
@@ -44,7 +45,7 @@
             // 
             // exit_report_Button
             // 
-            this.exit_report_Button.Location = new System.Drawing.Point(689, 499);
+            this.exit_report_Button.Location = new System.Drawing.Point(1063, 509);
             this.exit_report_Button.Name = "exit_report_Button";
             this.exit_report_Button.Size = new System.Drawing.Size(113, 35);
             this.exit_report_Button.TabIndex = 1;
@@ -54,7 +55,7 @@
             // 
             // printtheViewButton
             // 
-            this.printtheViewButton.Location = new System.Drawing.Point(409, 499);
+            this.printtheViewButton.Location = new System.Drawing.Point(922, 509);
             this.printtheViewButton.Name = "printtheViewButton";
             this.printtheViewButton.Size = new System.Drawing.Size(113, 35);
             this.printtheViewButton.TabIndex = 2;
@@ -62,11 +63,22 @@
             this.printtheViewButton.UseVisualStyleBackColor = true;
             this.printtheViewButton.Click += new System.EventHandler(this.printtheViewButton_Click);
             // 
+            // button_createExcel
+            // 
+            this.button_createExcel.Location = new System.Drawing.Point(36, 509);
+            this.button_createExcel.Name = "button_createExcel";
+            this.button_createExcel.Size = new System.Drawing.Size(113, 35);
+            this.button_createExcel.TabIndex = 3;
+            this.button_createExcel.Text = "Create Excel File";
+            this.button_createExcel.UseVisualStyleBackColor = true;
+            this.button_createExcel.Click += new System.EventHandler(this.button_createExcel_Click);
+            // 
             // PivotTable_Reports
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 573);
+            this.Controls.Add(this.button_createExcel);
             this.Controls.Add(this.printtheViewButton);
             this.Controls.Add(this.exit_report_Button);
             this.Controls.Add(this.pivot_tbl_listview);
@@ -83,5 +95,6 @@
         private System.Windows.Forms.ListView pivot_tbl_listview;
         private System.Windows.Forms.Button exit_report_Button;
         private System.Windows.Forms.Button printtheViewButton;
+        private System.Windows.Forms.Button button_createExcel;
     }
 }

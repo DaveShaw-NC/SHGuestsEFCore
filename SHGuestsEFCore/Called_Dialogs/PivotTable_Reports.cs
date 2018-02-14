@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using BrightIdeasSoftware;
+using OfficeOpenXml;
 
 namespace SHGuestsEFCore.Called_Dialogs
 {
@@ -16,7 +20,7 @@ namespace SHGuestsEFCore.Called_Dialogs
                    detail_rows = 0, total_detail_rows = 0, iLoop = 0;
 
         public DataTableReader in_reader, temp_rdr;
-        public DataTable in_table, tmp_table = new DataTable ( );
+        public DataTable in_table = new DataTable ( ), tmp_table = new DataTable ( );
         public ListViewItem lv_item;
         public ListView my_ListView = new ListView ( );
         public Size my_ListSize = new Size ( );
@@ -25,6 +29,8 @@ namespace SHGuestsEFCore.Called_Dialogs
         public string [ ] list_items;
         public int [ ] agency_totals, column_totals, agency_row_totals;
         public string sv_agency = null;
+
+
         public SHGuestsEFCore.SHGuests.pivot_rpt_type report_type;
 
         //*public PrintableListView.PrintableListView pivot_tbl_listview ;
@@ -377,6 +383,128 @@ namespace SHGuestsEFCore.Called_Dialogs
             lvp.PrintPreview ( );
             return;
         }
+        private void button_createExcel_Click ( object sender, EventArgs e )
+        {
+            DirectoryInfo di;
+            DialogResult svfres;
+            //string filePath = string.Empty;
+            try
+            {
+                SaveFileDialog fDialog = new SaveFileDialog ( );
+                fDialog.Filter = "Excel Workbook|*.xlsx|Excel (97-2003)|*.xls|Comma Separated Values|*.csv";
+                fDialog.Title = "Save exported file";
+                string initialdirectory = Environment.GetFolderPath ( Environment.SpecialFolder.MyDocuments ) + @"\Samaritan House SpreadSheets";
+                if (Directory.Exists ( initialdirectory ))
+                {
+                    di = new DirectoryInfo ( initialdirectory );
+                }
+                else
+                {
+                    di = Directory.CreateDirectory ( initialdirectory );
+                }
+                fDialog.InitialDirectory = di.FullName;
+                svfres = fDialog.ShowDialog ( );
+                if (svfres != DialogResult.OK)
+                {
+                    return;
+                }
+                BuildtheExcelfile ( fDialog.FileName );
+                MessageBox.Show ( $"Excel file {fDialog.FileName} successfully created", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return;
+        }
+        #region Build an Excel Workbook
+
+        public void BuildtheExcelfile ( string filePath )
+        {
+            FileInfo _finfo = new FileInfo ( filePath );
+            using (var package = new ExcelPackage ( ))
+            {
+                ExcelWorksheet wksht = package.Workbook.Worksheets.Add ( $"{this.Text}" );
+                BuildWorksheet ( wksht );
+
+                package.Workbook.Properties.LastModifiedBy = Environment.UserName;
+                package.Workbook.Properties.Application = "SHGuests";
+                package.Workbook.Properties.Company = "Samaritan House, Inc.";
+                package.Workbook.Properties.Title = $"{this.Text}";
+                package.SaveAs ( _finfo );
+            }
+            return;
+        }
+        private void BuildWorksheet ( ExcelWorksheet wksht )
+        {
+            DataTable dt = new DataTable ( "Pivots" );
+            dt = in_table.Copy ( );
+            wksht.Cells ["A1"].LoadFromDataTable ( dt, true );
+            wksht.Cells.Style.Font.Size = 9F;
+            wksht.Cells.Style.Font.Name = "Calibri";
+
+            using (var heading = wksht.Cells [1, 1, 1, dt.Columns.Count])
+            {
+                heading.Style.Font.Bold = true;
+                heading.Style.Font.Size = 10F;
+                heading.Style.Font.Name = "MS Sans Serif";
+                heading.Style.Font.Color.SetColor ( System.Drawing.Color.IndianRed );
+                heading.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.MediumGray;
+                heading.Style.Fill.BackgroundColor.SetColor ( System.Drawing.Color.Gray );
+                heading.Style.Border.BorderAround ( OfficeOpenXml.Style.ExcelBorderStyle.Medium );
+                heading.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+            IEnumerable<int> datecolumns = from DataColumn d in dt.Columns
+                                           where d.DataType == typeof ( DateTime )
+                                           select d.Ordinal + 1;
+            int rowcount = in_table.Rows.Count;
+            foreach (int dc in datecolumns)
+            {
+                wksht.Cells [2, dc, rowcount + 1, dc].Style.Numberformat.Format = @"MM/dd/yyyy";
+                wksht.Cells [2, dc, rowcount + 1, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            IEnumerable<int> intcolumns = from DataColumn dc in dt.Columns
+                                          where dc.DataType == typeof ( int )
+                                          select dc.Ordinal + 1;
+            rowcount = wksht.Dimension.End.Row;
+            foreach (int dc in intcolumns)
+            {
+                wksht.Cells [2, dc, rowcount, dc].Style.Numberformat.Format = @"#,###";
+                wksht.Cells [2, dc, rowcount, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            }
+            wksht.Cells [2, 1, rowcount, 1].Style.Font.Bold = true;
+            IEnumerable<int> dblcolumns = from DataColumn dc in dt.Columns
+                                          where dc.DataType == typeof ( double )
+                                          select dc.Ordinal + 1;
+            rowcount = wksht.Dimension.End.Row;
+            foreach (int dc in dblcolumns)
+            {
+                wksht.Cells [2, dc, rowcount, dc].Style.Numberformat.Format = @"#,##0.00000";
+                wksht.Cells [2, dc, rowcount, dc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            }
+            wksht.Cells.AutoFitColumns ( );
+            wksht.HeaderFooter.OddHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";
+            wksht.HeaderFooter.EvenHeader.CenteredText = $"&\"Calibri\"&B&14&K000000{this.Text} ";
+            wksht.HeaderFooter.OddFooter.CenteredText = $"&\"Arial\"&B&12&KFF0000 Copyright © {DateTime.Today.Year} Samaritan House Inc. All Rights Reserved.";
+            wksht.HeaderFooter.OddFooter.LeftAlignedText = $"{ExcelHeaderFooter.PageNumber} of {ExcelHeaderFooter.NumberOfPages}";
+            wksht.HeaderFooter.OddFooter.RightAlignedText = $"{ExcelHeaderFooter.CurrentDate} at {ExcelHeaderFooter.CurrentTime}";
+            wksht.HeaderFooter.EvenFooter.CenteredText = $"&\"Arial\"&B&12&KFF0000 Copyright © {DateTime.Today.Year} Samaritan House Inc. All Rights Reserved.";
+            wksht.HeaderFooter.EvenFooter.LeftAlignedText = $"{ExcelHeaderFooter.CurrentDate} at {ExcelHeaderFooter.CurrentTime}";
+            wksht.HeaderFooter.EvenFooter.RightAlignedText = $"{ExcelHeaderFooter.PageNumber} of {ExcelHeaderFooter.NumberOfPages}";
+            wksht.PrinterSettings.LeftMargin = 0.25M;
+            wksht.PrinterSettings.RightMargin = 0.25M;
+            wksht.PrinterSettings.TopMargin = 0.75M;
+            wksht.PrinterSettings.BottomMargin = 0.75M;
+            wksht.PrinterSettings.HeaderMargin = 0.3M;
+            wksht.PrinterSettings.FooterMargin = 0.3M;
+            wksht.PrinterSettings.Orientation = eOrientation.Landscape;
+            wksht.PrinterSettings.RepeatRows = new ExcelAddress ( $"1:1" );            //'{wksht.Name}'
+            wksht.PrinterSettings.ShowGridLines = true;
+            wksht.View.FreezePanes ( 2, dt.Columns.Count + 1 );
+            return;
+        }
+        #endregion
 
         #endregion Event Handlers
     }
